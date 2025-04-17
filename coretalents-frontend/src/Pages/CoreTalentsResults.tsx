@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import axios from "axios";
 import talentsData from "../data/coretalents_results_data.json"; // ✅ вернули как было
 import rawMapping from "../data/coretalents_question_mapping.json";

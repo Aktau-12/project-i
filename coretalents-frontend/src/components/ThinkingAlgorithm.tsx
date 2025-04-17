@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+
 import HabitTracker from "../Pages/HabitTracker"; // ✅ если HabitTracker лежит в pages
 
 const steps = [
