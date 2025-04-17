@@ -1,0 +1,15 @@
+# 🔒 Игнорировать приватные файлы
+.env
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+node_modules/
+dist/
+build/
+*.sqlite3
+.DS_Store
+.idea/
+.vscode/
+*.log
