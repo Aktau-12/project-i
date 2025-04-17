@@ -7,3 +7,5 @@ pydantic
 requests
 passlib[bcrypt]
 python-jose
+email-validator
+pydantic[email]
