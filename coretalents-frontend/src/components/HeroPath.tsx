@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react"; // ← Обязательно добавить хуки
+
+// если archetypes не нужен — убрать его импорт
 
 import { getHeroArchetype } from "../utils/getHeroArchetype";
 import archetypes from "../data/hero_archetypes.json";
