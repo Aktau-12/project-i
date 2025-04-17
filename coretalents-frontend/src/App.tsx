@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; 
-import CoreTalentsTest from "./pages/CoreTalentsTest";
-import CoreTalentsResults from "./pages/CoreTalentsResults";
-import BigFiveTest from "./pages/BigFiveTest";
-import BigFiveResultsPage from "./pages/BigFiveResultsPage";
-import MBTITest from "./pages/MBTITest";
-import MBTIResults from "./pages/MBTIResults";
-import Dashboard from "./pages/Dashboard";
-import LoginPage from "./pages/LoginPage";
+import CoreTalentsTest from "./Pages/CoreTalentsTest";
+import CoreTalentsResults from "./Pages/CoreTalentsResults";
+import BigFiveTest from "./Pages/BigFiveTest";
+import BigFiveResultsPage from "./Pages/BigFiveResultsPage";
+import MBTITest from "./Pages/MBTITest";
+import MBTIResults from "./Pages/MBTIResults";
+import Dashboard from "./Pages/Dashboard";
+import LoginPage from "./Pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import PrivateRoute from "./components/PrivateRoute";
-import HeroJourney from "./pages/HeroJourney"; // ✅ добавлено
+import HeroJourney from "./Pages/HeroJourney"; // ✅ добавлено
 import HabitTracker from "./Pages/HabitTracker"; // ✅ НОВОЕ
 
 function App() {
