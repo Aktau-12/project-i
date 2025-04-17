@@ -1,7 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
 sqlalchemy
 psycopg2-binary
-passlib[bcrypt]
-python-jose
+# и другие библиотеки, которые ты используешь
