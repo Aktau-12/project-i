@@ -13,14 +13,17 @@
     "moduleDetection": "force",
     "noEmit": true,
 
-    /* Linting */
+    /* Линтинг */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    /* 🔧 Поддержка alias @ -> src */
+    /* ✅ Поддержка JSX */
+    "jsx": "react-jsx",
+
+    /* Поддержка alias @ -> src */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
