@@ -3,4 +3,6 @@ uvicorn[standard]
 python-dotenv
 sqlalchemy
 psycopg2-binary
+pydantic
+requests
 # и другие библиотеки, которые ты используешь
