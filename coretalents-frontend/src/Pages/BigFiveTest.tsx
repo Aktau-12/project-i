@@ -3,18 +3,31 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BigFiveResults from "./BigFiveResults";
 
+interface Question {
+  id: number;
+  text: string;
+}
+
+interface BigFiveResult {
+  O: number;
+  C: number;
+  E: number;
+  A: number;
+  N: number;
+}
+
 export default function BigFiveTest() {
-  const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<BigFiveResult | null>(null);
   const [current, setCurrent] = useState(0);
   const [timer, setTimer] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/tests/2/questions", {
+      .get(import.meta.env.VITE_API_URL + "/tests/2/questions", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -38,7 +51,7 @@ export default function BigFiveTest() {
     return () => clearInterval(countdown);
   }, [current, questions]);
 
-  const getTraitByQuestionId = (id) => {
+  const getTraitByQuestionId = (id: number): keyof BigFiveResult => {
     const index = (id - 1) % 50;
     if (index < 10) return "O";
     if (index < 20) return "C";
@@ -47,23 +60,25 @@ export default function BigFiveTest() {
     return "N";
   };
 
-  const calculateBigFive = (answers) => {
-    const traits = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+  const calculateBigFive = (answers: Record<number, string>): BigFiveResult => {
+    const traits: BigFiveResult = { O: 0, C: 0, E: 0, A: 0, N: 0 };
     const count = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+
     for (const id in answers) {
       const trait = getTraitByQuestionId(parseInt(id));
       const value = parseInt(answers[id]);
       traits[trait] += value;
       count[trait]++;
     }
-    const result = {};
+
+    const result: BigFiveResult = { O: 0, C: 0, E: 0, A: 0, N: 0 };
     for (const trait in traits) {
-      result[trait] = +(traits[trait] / count[trait]).toFixed(2);
+      result[trait as keyof BigFiveResult] = +(traits[trait as keyof BigFiveResult] / count[trait as keyof BigFiveResult]).toFixed(2);
     }
     return result;
   };
 
-  const handleChange = (questionId, value) => {
+  const handleChange = (questionId: number, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
@@ -80,10 +95,12 @@ export default function BigFiveTest() {
       question_id: q.id,
       answer: parseInt(answers[q.id]) || 2,
     }));
+
     const computed = calculateBigFive(answers);
+
     try {
       await axios.post(
-        "http://localhost:8000/tests/2/submit",
+        import.meta.env.VITE_API_URL + "/tests/2/submit",
         { answers: payload, result: computed },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -129,12 +146,8 @@ export default function BigFiveTest() {
 
       {/* Таймер и прогресс сверху */}
       <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
-        <div>
-          ⏳ Осталось времени: <span className="font-bold">{timer}</span> сек
-        </div>
-        <div>
-          Вопрос {current + 1} из {questions.length}
-        </div>
+        <div>⏳ Осталось времени: <span className="font-bold">{timer}</span> сек</div>
+        <div>Вопрос {current + 1} из {questions.length}</div>
       </div>
 
       <div className="border p-4 rounded">
@@ -153,11 +166,7 @@ export default function BigFiveTest() {
                 onChange={(e) => handleChange(q.id, e.target.value)}
               />
               <span className="text-sm mt-1">
-                {value === 1
-                  ? "Это не про меня"
-                  : value === 2
-                  ? "Не знаю"
-                  : "Это точно про меня"}
+                {value === 1 ? "Это не про меня" : value === 2 ? "Не знаю" : "Это точно про меня"}
               </span>
             </label>
           ))}

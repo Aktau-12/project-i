@@ -4,21 +4,29 @@ import talentsData from "../data/coretalents_results_data.json"; // ✅ верн
 import rawMapping from "../data/coretalents_question_mapping.json";
 import { useNavigate } from "react-router-dom";
 
+interface Talent {
+  id: number;
+  name: string;
+  description: string;
+  details: string;
+  score: number;
+}
+
 export default function CoreTalentsResults() {
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<Talent[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   // Маппинг: question_id -> talent_id
   const mapping: Record<number, number> = {};
-  rawMapping.forEach((item) => {
+  rawMapping.forEach((item: { question_id: number; talent_id: number }) => {
     mapping[item.question_id] = item.talent_id;
   });
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/tests/coretalents/results", {
+        const res = await axios.get(import.meta.env.VITE_API_URL + "/tests/coretalents/results", {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
@@ -34,7 +42,7 @@ export default function CoreTalentsResults() {
           }));
 
         const counts: Record<number, number> = {};
-        validAnswers.forEach((a: any) => {
+        validAnswers.forEach((a) => {
           const questionId = a.question_id;
           const answer = a.answer ?? 0;
           const talentId = mapping[questionId];
@@ -43,7 +51,7 @@ export default function CoreTalentsResults() {
           counts[talentId] += answer;
         });
 
-        const sorted = Object.entries(counts)
+        const sorted: Talent[] = Object.entries(counts)
           .map(([talentId, score]) => {
             const parsedId = Number(talentId);
             const talent = talentsData.find((t) => Number(t.id) === parsedId);
