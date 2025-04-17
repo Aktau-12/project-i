@@ -1,4 +1,4 @@
-from app.routes import habit  # ✅ добавлено
+from routes import habit  # ✅ добавлено
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
