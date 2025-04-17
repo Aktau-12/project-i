@@ -10,7 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import PrivateRoute from "./components/PrivateRoute";
 import HeroJourney from "./pages/HeroJourney"; // ✅ добавлено
-import HabitTracker from "./pages/HabitTracker"; // ✅ НОВОЕ
+import HabitTracker from "./Pages/HabitTracker"; // ✅ НОВОЕ
 
 function App() {
   return (
