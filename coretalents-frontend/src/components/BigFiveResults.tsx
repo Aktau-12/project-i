@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Radar,
@@ -12,6 +11,13 @@ import {
 
 interface BigFiveResultsProps {
   data: Record<string, number>;
+}
+
+interface ChartDataItem {
+  trait: string;
+  label: string;
+  value: number;
+  description: string;
 }
 
 export default function BigFiveResults({ data }: BigFiveResultsProps) {
@@ -40,7 +46,7 @@ export default function BigFiveResults({ data }: BigFiveResultsProps) {
     return <p className="text-red-500">Нет данных для визуализации Big Five.</p>;
   }
 
-  const chartData = Object.keys(data)
+  const chartData: ChartDataItem[] = Object.keys(data)
     .filter((trait) => typeof data[trait] === "number" && !isNaN(data[trait]))
     .map((trait) => ({
       trait,

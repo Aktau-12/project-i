@@ -7,7 +7,7 @@ import MBTITest from "./Pages/MBTITest";
 import MBTIResults from "./Pages/MBTIResults";
 import Dashboard from "./Pages/Dashboard";
 import LoginPage from "./Pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import RegisterPage from "./Pages/RegisterPage";
 import PrivateRoute from "./components/PrivateRoute";
 import HeroJourney from "./Pages/HeroJourney"; // ✅ добавлено
 import HabitTracker from "./Pages/HabitTracker"; // ✅ НОВОЕ
