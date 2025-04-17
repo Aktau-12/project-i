@@ -1,5 +1,4 @@
-from routes import habit  # ✅ добавлено
-
+from app.routes import habit  # ✅ добавлено
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
