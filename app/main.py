@@ -17,11 +17,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS
+# 🌐 Разрешаем CORS для всех нужных доменов
 origins = [
-    "http://localhost:3000",   # для локальной разработки (React)
-    "http://localhost:5173",   # для локальной разработки (Vite)
-    "https://patient-happiness-production.up.railway.app",  # твой продакшн-фронт
+    "http://localhost:5173",   # для Vite
+    "http://localhost:3000",   # для обычного React
+    "https://patient-happiness-production.up.railway.app",  # твой продакшн фронт Railway
 ]
 
 app.add_middleware(
