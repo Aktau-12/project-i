@@ -19,8 +19,8 @@ app = FastAPI(
 
 # 🌐 Разрешаем CORS
 origins = [
-    "http://localhost:3000",  # для локальной разработки
-    "http://localhost:5173",  # если используешь Vite
+    "http://localhost:3000",   # для локальной разработки (React)
+    "http://localhost:5173",   # для локальной разработки (Vite)
     "https://patient-happiness-production.up.railway.app",  # твой продакшн-фронт
 ]
 
