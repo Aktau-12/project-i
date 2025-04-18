@@ -1,10 +1,12 @@
+
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 interface MBTIResult {
   type_code: string;
   description: string;
-  extended_description?: string; // ✅ добавлено новое поле
+  extended_description?: string;
   details?: Record<string, number>;
 }
 
@@ -75,14 +77,13 @@ const MBTIResults = () => {
         />
       </div>
 
-     <h3 className="text-xl font-semibold">
-  Ваш тип:{" "}
-  <span className="text-blue-600 text-3xl font-bold">
-    {result.type_code}
-  </span>{" "}
-  — {result.description}
-</h3>
-
+      <h3 className="text-xl font-semibold">
+        Ваш тип:{" "}
+        <span className="text-blue-600 text-3xl font-bold">
+          {result.type_code}
+        </span>{" "}
+        — {result.description}
+      </h3>
 
       <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-line">
         {result.description}
@@ -101,7 +102,7 @@ const MBTIResults = () => {
         <div className="text-left bg-gray-50 border rounded-lg p-4 text-sm text-gray-600">
           <h4 className="font-semibold mb-2">🧮 Баллы по шкалам:</h4>
           <ul className="grid grid-cols-2 gap-2">
-            {Object.entries(result.details).map(([trait, value]) => (
+            {Object.entries(result.details as Record<string, number>).map(([trait, value]) => (
               <li key={trait}>
                 <strong>{trait}</strong>: {value}
               </li>

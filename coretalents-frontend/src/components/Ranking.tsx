@@ -1,8 +1,5 @@
 // Ranking.tsx
-import { useState, useEffect } from "react"; // ← Обязательно добавить хуки
-
-// если archetypes не нужен — убрать его импорт
-
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 type RankedUser = {

@@ -1,7 +1,9 @@
+
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import AddHabitModal from "@/components/AddHabitModal"; // ✅ модалка добавления
-import HabitProgress from "@/components/HabitProgress"; // ✅ прогресс по дням недели
+import AddHabitModal from "@/components/AddHabitModal";
+import HabitProgress from "@/components/HabitProgress";
 
 interface Habit {
   id: number;
@@ -50,7 +52,6 @@ const HabitTracker = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      {/* 🔝 Заголовок + кнопка назад */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">🧠 Мои привычки</h2>
         <button
@@ -61,7 +62,6 @@ const HabitTracker = () => {
         </button>
       </div>
 
-      {/* 🔁 Модель привычки */}
       <div className="mb-10 bg-[#f8f4ec] rounded-2xl p-6 shadow">
         <h3 className="text-xl font-semibold mb-4">🔁 Цикл формирования привычки</h3>
         <div className="flex flex-col md:flex-row items-center gap-6">
@@ -78,7 +78,6 @@ const HabitTracker = () => {
         </div>
       </div>
 
-      {/* ➕ Кнопка добавить привычку */}
       <div className="text-right mb-6">
         <button
           onClick={() => setModalOpen(true)}
@@ -88,9 +87,8 @@ const HabitTracker = () => {
         </button>
       </div>
 
-      {/* 🧱 Список привычек */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {habits.map((habit) => (
+        {habits.map((habit: Habit) => (
           <div
             key={habit.id}
             className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center"
@@ -105,7 +103,6 @@ const HabitTracker = () => {
               🔥 Счётчик: <b>{habit.streak}</b> дней подряд
             </p>
 
-            {/* ✅ Визуализация прогресса недели */}
             <HabitProgress weekLog={habit.week_log || []} />
 
             <button
@@ -123,7 +120,6 @@ const HabitTracker = () => {
         ))}
       </div>
 
-      {/* 🪄 Модальное окно */}
       <AddHabitModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

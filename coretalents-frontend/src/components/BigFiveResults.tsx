@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Radar,
   RadarChart,
@@ -7,11 +8,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { useNavigate } from "react-router-dom"; // ✅ добавлено
 
 export default function BigFiveResults({ data }) {
-  const navigate = useNavigate(); // ✅ добавлено
-
   const traitLabels = {
     O: "Открытость опыту",
     C: "Сознательность",
@@ -45,7 +43,7 @@ export default function BigFiveResults({ data }) {
       value: data[trait],
       description: traitDescriptions[trait],
     }))
-    .sort((a, b) => b.value - a.value);
+    .sort((a, b) => b.value - a.value); // Сортировка по убыванию значений
 
   return (
     <div className="mt-6 space-y-10">
@@ -78,16 +76,6 @@ export default function BigFiveResults({ data }) {
             <p className="text-gray-700">{trait.description}</p>
           </div>
         ))}
-      </div>
-
-      {/* ✅ Добавленная кнопка */}
-      <div className="text-center">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition"
-        >
-          🔙 Выйти в меню
-        </button>
       </div>
     </div>
   );

@@ -1,3 +1,5 @@
+
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -79,7 +81,7 @@ const MBTITest = () => {
   if (loading) return <div className="p-6">📦 Загрузка...</div>;
   if (!questions.length) return <div className="p-6">❌ Вопросы не найдены</div>;
 
-  const question = questions[currentIndex];
+  const question: Question = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
 
   return (

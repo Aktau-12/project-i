@@ -1,4 +1,6 @@
+
 // src/pages/LoginPage.tsx
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
@@ -56,14 +58,14 @@ export default function LoginPage() {
         placeholder="Почта"
         className="w-full mb-3 p-2 border rounded"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
       />
       <input
         type="password"
         placeholder="Пароль"
         className="w-full mb-3 p-2 border rounded"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
       />
 
       {error && <p className="text-red-500 text-sm mb-2">{error}</p>}

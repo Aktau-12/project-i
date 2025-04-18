@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react"; // ← Обязательно добавить хуки
-
-// если archetypes не нужен — убрать его импорт
-
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 interface Profession {

@@ -1,8 +1,5 @@
-import { useState, useEffect } from "react"; // ← Обязательно добавить хуки
-
-// если archetypes не нужен — убрать его импорт
-
-import HabitTracker from "../Pages/HabitTracker"; // ✅ если HabitTracker лежит в pages
+import React, { useState } from "react";
+import HabitTracker from "../pages/HabitTracker"; // ✅ если HabitTracker лежит в pages
 
 const steps = [
   {
