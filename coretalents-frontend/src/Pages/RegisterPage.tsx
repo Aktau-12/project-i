@@ -1,9 +1,8 @@
-// src/pages/RegisterPage.tsx
 import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const [name, setName] = useState(""); // 👤 Имя
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -22,10 +21,10 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
+      const response = await fetch(import.meta.env.VITE_API_URL + "/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ full_name: name, email, password }),
+        body: JSON.stringify({ username: name, email, password }),
       });
 
       if (!response.ok) {
