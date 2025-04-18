@@ -1,10 +1,12 @@
+
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import CoreTalentsResults from "../Pages/CoreTalentsResults";
 
 export default function CoreTalentsTest() {
-  const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState({});
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [answers, setAnswers] = useState<Record<number, number>>({});
   const [current, setCurrent] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [timer, setTimer] = useState(20);
@@ -22,7 +24,7 @@ export default function CoreTalentsTest() {
 
     setTimer(20);
     const countdown = setInterval(() => {
-      setTimer((prev) => {
+      setTimer((prev: number) => {
         if (prev <= 1) {
           clearInterval(countdown);
           handleAutoNext();
@@ -34,20 +36,20 @@ export default function CoreTalentsTest() {
     return () => clearInterval(countdown);
   }, [current, questions]);
 
-  const handleSelect = (questionId, value) => {
+  const handleSelect = (questionId: number, value: number) => {
     setAnswers({ ...answers, [questionId]: value });
   };
 
   const handleAutoNext = () => {
     if (current < questions.length - 1) {
-      setCurrent((prev) => prev + 1);
+      setCurrent((prev: number) => prev + 1);
     } else {
       handleSubmit();
     }
   };
 
   const handleNext = () => {
-    setCurrent((prev) => prev + 1);
+    setCurrent((prev: number) => prev + 1);
   };
 
   const handleSubmit = async () => {
@@ -97,12 +99,12 @@ export default function CoreTalentsTest() {
 
   const progress = ((current + 1) / questions.length) * 100;
 
-  const labels = {
-    "-2": "Полностью согласен",
-    "-1": "Частично согласен",
-    "0": "Согласен с обоими",
-    "1": "Частично согласен",
-    "2": "Полностью согласен",
+  const labels: Record<number, string> = {
+    [-2]: "Полностью согласен",
+    [-1]: "Частично согласен",
+    [0]: "Согласен с обоими",
+    [1]: "Частично согласен",
+    [2]: "Полностью согласен",
   };
 
   return (
@@ -151,7 +153,6 @@ export default function CoreTalentsTest() {
           ))}
         </div>
 
-        {/* Визуальный прогресс-бар таймера */}
         <div className="w-full h-2 bg-gray-200 rounded-full mt-4">
           <div
             className="h-full bg-orange-500 rounded-full transition-all duration-1000"
