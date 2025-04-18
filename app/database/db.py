@@ -1,17 +1,23 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from dotenv import load_dotenv
+import os
+from pathlib import Path
 
-# Строка подключения к БД
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg2://postgres:Kazled12@localhost:5432/ai_profiler"
+# 🔄 Загружаем переменные окружения из .env
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
-# Создаём движок SQLAlchemy
+# 📄 Берем строку подключения к БД из .env
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
+# 🚀 Создаём движок SQLAlchemy
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
-# Создаём сессию
+# 🛠 Создаём сессию
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Базовый класс для моделей
+# 🧱 Базовый класс для моделей
 Base = declarative_base()
 
 # ✅ Функция-зависимость для подключения к БД
