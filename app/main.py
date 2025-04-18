@@ -17,10 +17,16 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS для всех (временно для тестов)
+# 🌐 Разрешаем CORS
+origins = [
+    "http://localhost:3000",  # для локальной разработки
+    "http://localhost:5173",  # если используешь Vite
+    "https://patient-happiness-production.up.railway.app",  # твой продакшн-фронт
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ✅ разрешить запросы с любого фронта
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
