@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     "target": "ES2020",
@@ -26,7 +25,9 @@
 
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+
+    "jsx": "react-jsx"  ← ЭТО НУЖНО ДОБАВИТЬ
   },
   "include": ["src"]
 }
