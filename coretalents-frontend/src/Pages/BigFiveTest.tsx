@@ -1,13 +1,19 @@
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import BigFiveResults from "./BigFiveResults";
 
+interface Question {
+  id: number;
+  text: string;
+}
+
 export default function BigFiveTest() {
-  const [questions, setQuestions] = useState([]);
-  const [answers, setAnswers] = useState({});
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<Record<string, number> | null>(null);
   const [current, setCurrent] = useState(0);
   const [timer, setTimer] = useState(20);
   const navigate = useNavigate();
@@ -38,7 +44,7 @@ export default function BigFiveTest() {
     return () => clearInterval(countdown);
   }, [current, questions]);
 
-  const getTraitByQuestionId = (id) => {
+  const getTraitByQuestionId = (id: number) => {
     const index = (id - 1) % 50;
     if (index < 10) return "O";
     if (index < 20) return "C";
@@ -47,23 +53,23 @@ export default function BigFiveTest() {
     return "N";
   };
 
-  const calculateBigFive = (answers) => {
-    const traits = { O: 0, C: 0, E: 0, A: 0, N: 0 };
-    const count = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+  const calculateBigFive = (answers: Record<number, string>) => {
+    const traits: Record<string, number> = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+    const count: Record<string, number> = { O: 0, C: 0, E: 0, A: 0, N: 0 };
     for (const id in answers) {
       const trait = getTraitByQuestionId(parseInt(id));
       const value = parseInt(answers[id]);
       traits[trait] += value;
       count[trait]++;
     }
-    const result = {};
+    const result: Record<string, number> = {};
     for (const trait in traits) {
       result[trait] = +(traits[trait] / count[trait]).toFixed(2);
     }
     return result;
   };
 
-  const handleChange = (questionId, value) => {
+  const handleChange = (questionId: number, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 

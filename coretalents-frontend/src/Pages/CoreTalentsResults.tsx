@@ -1,15 +1,23 @@
-import React, { useEffect, useState } from "react";
+
+import { useEffect, useState } from "react";
 import axios from "axios";
-import talentsData from "../data/coretalents_results_data.json"; // ✅ вернули как было
+import talentsData from "../data/coretalents_results_data.json";
 import rawMapping from "../data/coretalents_question_mapping.json";
 import { useNavigate } from "react-router-dom";
 
+interface TalentResult {
+  id: number;
+  name: string;
+  description: string;
+  details: string;
+  score: number;
+}
+
 export default function CoreTalentsResults() {
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<TalentResult[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Маппинг: question_id -> talent_id
   const mapping: Record<number, number> = {};
   rawMapping.forEach((item) => {
     mapping[item.question_id] = item.talent_id;
@@ -34,7 +42,7 @@ export default function CoreTalentsResults() {
           }));
 
         const counts: Record<number, number> = {};
-        validAnswers.forEach((a: any) => {
+        validAnswers.forEach((a) => {
           const questionId = a.question_id;
           const answer = a.answer ?? 0;
           const talentId = mapping[questionId];
