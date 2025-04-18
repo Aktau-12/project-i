@@ -1,4 +1,4 @@
-
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import HeroPath from "../components/HeroPath";
 import Ranking from "../components/Ranking";
