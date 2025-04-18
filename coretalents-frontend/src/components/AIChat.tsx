@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -31,7 +32,7 @@ export default function AIChat() {
       <select
         className="border p-2 rounded w-full"
         value={model}
-        onChange={(e) => setModel(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setModel(e.target.value)}
       >
         <option value="gpt">GPT-4 Turbo</option>
         <option value="claude">Claude 3</option>
@@ -41,7 +42,7 @@ export default function AIChat() {
         className="w-full border p-2 rounded h-24"
         placeholder="Задайте вопрос..."
         value={question}
-        onChange={(e) => setQuestion(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setQuestion(e.target.value)}
       />
 
       <button

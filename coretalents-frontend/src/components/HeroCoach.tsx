@@ -1,7 +1,12 @@
+
 import React from "react";
 
+interface Archetype {
+  name: string;
+}
+
 type Props = {
-  archetype: any;
+  archetype: Archetype;
   bigfive: {
     O: number;
     C: number;

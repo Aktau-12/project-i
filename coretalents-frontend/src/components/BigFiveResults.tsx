@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Radar,
@@ -9,8 +10,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function BigFiveResults({ data }) {
-  const traitLabels = {
+interface BigFiveData {
+  [key: string]: number;
+}
+
+export default function BigFiveResults({ data }: { data: BigFiveData }) {
+  const traitLabels: Record<string, string> = {
     O: "Открытость опыту",
     C: "Сознательность",
     E: "Экстраверсия",
@@ -18,7 +23,7 @@ export default function BigFiveResults({ data }) {
     N: "Нейротизм",
   };
 
-  const traitDescriptions = {
+  const traitDescriptions: Record<string, string> = {
     O: "Ты склонен к любопытству, гибкости мышления и богатому воображению. Люди с высокой открытостью стремятся исследовать новое — идеи, эмоции, искусства. Ты видишь глубину в обычных вещах и способен мыслить вне рамок. Такая черта позволяет тебе быть источником вдохновения и генератором перемен.",
     C: "Ты организован, ответственен и внимателен к деталям. Такая черта часто связана с высокой самодисциплиной и стремлением к достижению целей. Ты не бросаешь начатое на полпути и умеешь справляться с долгосрочными задачами, не теряя фокуса.",
     E: "Ты черпаешь энергию из общения и активного взаимодействия с другими. Экстраверты склонны быть яркими, оптимистичными и инициативными. Ты любишь быть в центре событий и чувствуешь себя живым, когда делишься эмоциями с окружающими.",
@@ -26,12 +31,7 @@ export default function BigFiveResults({ data }) {
     N: "Ты глубоко переживаешь всё, что происходит. Иногда это делает тебя более уязвимым к стрессу, но с другой стороны — ты обладаешь редкой эмпатией. Твоя чувствительность может быть источником искренности, интуиции и художественного восприятия мира.",
   };
 
-  if (
-    !data ||
-    typeof data !== "object" ||
-    Array.isArray(data) ||
-    Object.keys(data).length === 0
-  ) {
+  if (!data || typeof data !== "object" || Array.isArray(data) || Object.keys(data).length === 0) {
     return <p className="text-red-500">Нет данных для визуализации Big Five.</p>;
   }
 
@@ -39,11 +39,11 @@ export default function BigFiveResults({ data }) {
     .filter((trait) => typeof data[trait] === "number" && !isNaN(data[trait]))
     .map((trait) => ({
       trait,
-      label: traitLabels[trait],
+      label: traitLabels[trait] || trait,
       value: data[trait],
-      description: traitDescriptions[trait],
+      description: traitDescriptions[trait] || "",
     }))
-    .sort((a, b) => b.value - a.value); // Сортировка по убыванию значений
+    .sort((a, b) => b.value - a.value);
 
   return (
     <div className="mt-6 space-y-10">

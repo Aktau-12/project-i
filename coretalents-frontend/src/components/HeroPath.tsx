@@ -1,6 +1,6 @@
+
 import React, { useEffect, useState } from "react";
 import { getHeroArchetype } from "../utils/getHeroArchetype";
-import archetypes from "../data/hero_archetypes.json";
 import stepsData from "../data/hero_steps.json";
 import axios from "axios";
 import HeroCoach from "./HeroCoach";
