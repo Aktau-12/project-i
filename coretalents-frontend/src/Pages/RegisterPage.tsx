@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
+  const [name, setName] = useState("");  // ✅ Теперь name используется
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    if (!email || !password || !confirm) { // ✅ убрал name проверку
+    if (!name || !email || !password || !confirm) { // ✅ Теперь проверяем и name
       setError("Пожалуйста, заполните все поля");
       return;
     }
@@ -24,7 +24,7 @@ export default function RegisterPage() {
       const response = await fetch(import.meta.env.VITE_API_URL + "/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }), // ✅ отправляем только email и password
+        body: JSON.stringify({ name, email, password }),  // ✅ обязательно отправляем name
       });
 
       if (!response.ok) {
@@ -32,7 +32,7 @@ export default function RegisterPage() {
         throw new Error(errData.detail || "Ошибка регистрации");
       }
 
-      navigate("/login");
+      navigate("/login");  // ✅ переход после успешной регистрации
     } catch (err: any) {
       setError(err.message || "Ошибка сети");
     }
