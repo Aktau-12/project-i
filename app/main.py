@@ -41,3 +41,10 @@ app.include_router(habit.router, prefix="/habits", tags=["Habits"])
 @app.get("/")
 def home():
     return {"message": "✅ AI Profiler успешно работает!"}
+
+# 🚀 Специальный маршрут для выполнения миграций
+@app.get("/run-migrations")
+async def run_migrations_from_api():
+    from app.run_migrations import run_migrations
+    await run_migrations()
+    return {"message": "✅ Миграции применены успешно!"}
