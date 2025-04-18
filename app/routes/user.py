@@ -5,11 +5,10 @@ from app.database.db import SessionLocal
 from app.models.user import User
 from app.models.hero import UserHeroProgress
 from app.routes.auth import get_current_user
-from app.schemas.user import UserCreate, UserResponse  # 👈 импорт схем
+from app.schemas.user import UserCreate, UserResponse  # ✅ импорт схем
 
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 # 🔌 Получение сессии БД
 def get_db():
@@ -19,11 +18,9 @@ def get_db():
     finally:
         db.close()
 
-
 # 🔒 Хеширование пароля
 def hash_password(password: str):
     return pwd_context.hash(password)
-
 
 # ✅ Регистрация нового пользователя с прогрессом героя
 @router.post("/register", response_model=dict)
@@ -38,10 +35,9 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         password_hash=hashed_password
     )
     db.add(user)
-    db.commit()
-    db.refresh(user)
+    db.flush()  # ✅ чтобы user.id был доступен без коммита
 
-    # ✅ Создаём прогресс героя
+    # ✅ Создаём прогресс героя сразу
     progress = UserHeroProgress(user_id=user.id, xp=0)
     db.add(progress)
     db.commit()
@@ -50,7 +46,6 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         "message": "✅ Пользователь успешно зарегистрирован!",
         "user_id": user.id
     }
-
 
 # 👤 Получение текущего пользователя
 @router.get("/me", response_model=UserResponse)
