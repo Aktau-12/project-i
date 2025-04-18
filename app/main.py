@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env (.впапка app/)
+# 🔄 Загружаем переменные окружения из .env (папка app/)
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
 # 📆 Импорт роутеров
@@ -17,16 +17,10 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешённые источники (CORS) — теперь и для Railway
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://patient-happiness-production.up.railway.app",  # Новый разрешённый домен
-]
-
+# 🌐 Разрешаем CORS для всех (временно для тестов)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # ✅ разрешить запросы с любого фронта
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -41,7 +35,7 @@ app.include_router(mbti.router, prefix="/mbti", tags=["MBTI"])
 print("🧠 MBTI router подключён!")
 app.include_router(hero.router, prefix="/hero", tags=["Hero"])
 app.include_router(rating.router, prefix="/rating", tags=["Rating"])
-app.include_router(habit.router, prefix="/habits", tags=["Habits"])  # ✅ добавлено
+app.include_router(habit.router, prefix="/habits", tags=["Habits"])
 
 # 🏠 Главная страница
 @app.get("/")
