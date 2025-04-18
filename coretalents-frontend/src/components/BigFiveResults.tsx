@@ -7,20 +7,12 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useNavigate } from "react-router-dom"; // ✅ добавлено
 
-interface BigFiveResultsProps {
-  data: Record<string, number>;
-}
+export default function BigFiveResults({ data }) {
+  const navigate = useNavigate(); // ✅ добавлено
 
-interface ChartDataItem {
-  trait: string;
-  label: string;
-  value: number;
-  description: string;
-}
-
-export default function BigFiveResults({ data }: BigFiveResultsProps) {
-  const traitLabels: Record<string, string> = {
+  const traitLabels = {
     O: "Открытость опыту",
     C: "Сознательность",
     E: "Экстраверсия",
@@ -28,7 +20,7 @@ export default function BigFiveResults({ data }: BigFiveResultsProps) {
     N: "Нейротизм",
   };
 
-  const traitDescriptions: Record<string, string> = {
+  const traitDescriptions = {
     O: "Ты склонен к любопытству, гибкости мышления и богатому воображению. Люди с высокой открытостью стремятся исследовать новое — идеи, эмоции, искусства. Ты видишь глубину в обычных вещах и способен мыслить вне рамок. Такая черта позволяет тебе быть источником вдохновения и генератором перемен.",
     C: "Ты организован, ответственен и внимателен к деталям. Такая черта часто связана с высокой самодисциплиной и стремлением к достижению целей. Ты не бросаешь начатое на полпути и умеешь справляться с долгосрочными задачами, не теряя фокуса.",
     E: "Ты черпаешь энергию из общения и активного взаимодействия с другими. Экстраверты склонны быть яркими, оптимистичными и инициативными. Ты любишь быть в центре событий и чувствуешь себя живым, когда делишься эмоциями с окружающими.",
@@ -45,13 +37,13 @@ export default function BigFiveResults({ data }: BigFiveResultsProps) {
     return <p className="text-red-500">Нет данных для визуализации Big Five.</p>;
   }
 
-  const chartData: ChartDataItem[] = Object.keys(data)
+  const chartData = Object.keys(data)
     .filter((trait) => typeof data[trait] === "number" && !isNaN(data[trait]))
     .map((trait) => ({
       trait,
-      label: traitLabels[trait] || trait,
+      label: traitLabels[trait],
       value: data[trait],
-      description: traitDescriptions[trait] || "Описание недоступно",
+      description: traitDescriptions[trait],
     }))
     .sort((a, b) => b.value - a.value);
 
@@ -86,6 +78,16 @@ export default function BigFiveResults({ data }: BigFiveResultsProps) {
             <p className="text-gray-700">{trait.description}</p>
           </div>
         ))}
+      </div>
+
+      {/* ✅ Добавленная кнопка */}
+      <div className="text-center">
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition"
+        >
+          🔙 Выйти в меню
+        </button>
       </div>
     </div>
   );
