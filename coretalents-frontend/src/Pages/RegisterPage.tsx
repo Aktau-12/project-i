@@ -10,7 +10,7 @@ export default function RegisterPage() {
   const navigate = useNavigate();
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirm) {
+    if (!email || !password || !confirm) { // ✅ убрал name проверку
       setError("Пожалуйста, заполните все поля");
       return;
     }
@@ -24,7 +24,7 @@ export default function RegisterPage() {
       const response = await fetch(import.meta.env.VITE_API_URL + "/users/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, email, password }),
+        body: JSON.stringify({ email, password }), // ✅ отправляем только email и password
       });
 
       if (!response.ok) {
