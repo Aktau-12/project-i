@@ -22,10 +22,10 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/users/register", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ full_name: name, email, password }),
       });
 
       if (!response.ok) {
