@@ -1,27 +1,27 @@
-from app.routes import habit  # ✅ добавлено
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-from pathlib import Path  # ✅ надёжный способ указания пути
+from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env (находится в папке app/)
+# 🔄 Загружаем переменные окружения из .env (.впапка app/)
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
-# 📦 Импорт роутеров
-from app.routes import user, auth, test, coretalents, mbti, hero, rating
+# 📆 Импорт роутеров
+from app.routes import user, auth, test, coretalents, mbti, hero, rating, habit
 
-# 🚀 Создание FastAPI-приложения
+# 🚀 Создаём FastAPI-приложение
 app = FastAPI(
     title="AI Profiler",
     description="🧠 Платформа для психологических тестов, саморазвития и AI-помощи",
     version="1.0.0",
 )
 
-# 🌐 Разрешённые источники (CORS) — для фронтенда на React (Vite)
+# 🌐 Разрешённые источники (CORS) — теперь и для Railway
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://patient-happiness-production.up.railway.app",  # Новый разрешённый домен
 ]
 
 app.add_middleware(
@@ -32,13 +32,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 🔌 Подключение роутеров
+# 🔌 Подключаем роутеры
 app.include_router(user.router, prefix="/users", tags=["Users"])
 app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(test.router, prefix="/tests", tags=["Tests"])
 app.include_router(coretalents.router, prefix="/coretalents", tags=["CoreTalents"])
 app.include_router(mbti.router, prefix="/mbti", tags=["MBTI"])
-print("🧠 MBTI router подключен!")
+print("🧠 MBTI router подключён!")
 app.include_router(hero.router, prefix="/hero", tags=["Hero"])
 app.include_router(rating.router, prefix="/rating", tags=["Rating"])
 app.include_router(habit.router, prefix="/habits", tags=["Habits"])  # ✅ добавлено
