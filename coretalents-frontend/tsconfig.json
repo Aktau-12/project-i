@@ -5,7 +5,6 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
@@ -26,8 +25,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "types": ["vite/client"],
-
-    "jsx": "react-jsx"  ← ЭТО НУЖНО ДОБАВИТЬ
+    "jsx": "react-jsx"
   },
   "include": ["src"]
 }
