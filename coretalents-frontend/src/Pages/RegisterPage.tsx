@@ -7,9 +7,16 @@ const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      alert("Пароли не совпадают");
+      return;
+    }
+
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
         email,
@@ -48,6 +55,14 @@ const RegisterPage = () => {
           placeholder="Пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-4 p-2 border rounded"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Повторите пароль"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
           className="w-full mb-6 p-2 border rounded"
           required
         />
