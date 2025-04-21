@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
@@ -29,6 +30,7 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+# Pydantic-модели
 class UserCreate(BaseModel):
     email: str
     name: str
@@ -38,22 +40,21 @@ class UserLogin(BaseModel):
     email: str
     password: str
 
-
+# Утилиты для паролей
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
-
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-
+# Генерация токена
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
+# Работа с БД
 def get_db():
     db = SessionLocal()
     try:
@@ -61,7 +62,7 @@ def get_db():
     finally:
         db.close()
 
-
+# Получение текущего пользователя
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -101,7 +102,7 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     )
     db.add(hero_progress)
 
-    # 3) Пишем в БД и обрабатываем дубликаты на уровне СУБД
+    # 3) Пишем в БД и обрабатываем дубликаты
     try:
         db.commit()
     except IntegrityError:
@@ -111,22 +112,24 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="⛔️ Пользователь с таким email уже зарегистрирован"
         )
 
-    # 4) Освежаем и возвращаем ответ
+    # 4) Освежаем и генерируем токен
     db.refresh(new_user)
-    return {"message": "✅ Пользователь успешно зарегистрирован!"}
+    token = create_access_token(data={"sub": new_user.email})
+    return {
+        "message": "✅ Пользователь успешно зарегистрирован!",
+        "access_token": token,
+        "token_type": "bearer"
+    }
 
 # 🔐 Логин
 @router.post("/login")
 def login(user_data: UserLogin, db: Session = Depends(get_db)):
-    # Проверяем существование и пароль
     user = db.query(User).filter(User.email == user_data.email).first()
     if not user or not verify_password(user_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="⛔️ Неверный логин или пароль"
         )
-
-    # Генерируем токен
     token = create_access_token(data={"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
 

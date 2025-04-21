@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env ( в папке app/)
+# 🔄 Загружаем переменные окружения из .env
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
 # 🕖 Импорт роутеров
@@ -13,15 +13,15 @@ from app.routes import user, auth, test, coretalents, mbti, hero, rating, habit
 # 🚀 Создаём FastAPI-приложение
 app = FastAPI(
     title="AI Profiler",
-    description="🦱 Платформа для психологических тестов, саморазвития и AI-помощи",
+    description="🦱 Платформа для психологических тестов, саморазвития и AI‑помощи",
     version="1.0.0",
 )
 
 # 🌐 Разрешаем CORS только для нужных фронтендов
 origins = [
-    "http://localhost:5173",   # для Vite
-    "http://localhost:3000",   # для обычного React
-    "https://patient-happiness-production.up.railway.app",  # Твой продакшн фронт
+    "http://localhost:5173",   # Vite dev
+    "http://localhost:3000",   # React dev
+    "https://patient-happiness-production.up.railway.app",  # Продакшн фронтенд
 ]
 
 app.add_middleware(
@@ -38,7 +38,6 @@ app.include_router(auth.router, prefix="/auth", tags=["Auth"])
 app.include_router(test.router, prefix="/tests", tags=["Tests"])
 app.include_router(coretalents.router, prefix="/coretalents", tags=["CoreTalents"])
 app.include_router(mbti.router, prefix="/mbti", tags=["MBTI"])
-print("🦱 MBTI router подключён!")
 app.include_router(hero.router, prefix="/hero", tags=["Hero"])
 app.include_router(rating.router, prefix="/rating", tags=["Rating"])
 app.include_router(habit.router, prefix="/habits", tags=["Habits"])
