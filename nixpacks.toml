@@ -1,7 +1,13 @@
+[build]
+builder = "nixpacks"
+
+[variables]
+BP_LANGUAGE = "python"
+
 [phases.setup]
 nixPkgs = ["python312Full"]
 
-[phases.build]
+[phases.install]
 cmds = [
   "pip install --upgrade pip",
   "pip install -r requirements.txt"
