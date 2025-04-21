@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -14,39 +14,52 @@ export default function LoginRegister() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // При монтировании ставим токен, если он есть
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+
   const handleLogin = async () => {
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.access_token);
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/login`,
+        { email, password }
+      );
+      const { access_token, token_type } = res.data;
+      localStorage.setItem("token", access_token);
+      axios.defaults.headers.common["Authorization"] = `${token_type} ${access_token}`;
       navigate("/dashboard");
-    } catch (error: any) {
-      if (error.response && error.response.status === 401) {
+    } catch (err: any) {
+      if (err.response?.status === 401) {
         setError("⛔ Неверный логин или пароль.");
       } else {
         setError("❌ Ошибка входа. Попробуйте снова.");
       }
-      console.error(error);
+      console.error(err);
     }
   };
 
   const handleRegister = async () => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        email: registerEmail,
-        password: registerPassword,
-        name: registerName,
-      });
-      alert("✅ Успешно зарегистрирован! Войдите.");
-    } catch (error: any) {
-      if (error.response && error.response.status === 400) {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        { email: registerEmail, name: registerName, password: registerPassword }
+      );
+      const { access_token, token_type } = res.data;
+      localStorage.setItem("token", access_token);
+      axios.defaults.headers.common["Authorization"] = `${token_type} ${access_token}`;
+      navigate("/dashboard");
+    } catch (err: any) {
+      if (err.response?.status === 400) {
         setError("⛔ Пользователь с таким email уже существует.");
       } else {
         setError("❌ Ошибка регистрации. Попробуйте снова.");
       }
-      console.error(error);
+      console.error(err);
     }
   };
 

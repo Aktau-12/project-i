@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import HeroPath from "../components/HeroPath";
 import Ranking from "../components/Ranking";
 import HeroProfessions from "../components/HeroProfessions";
-import HabitTracker from "./HabitTracker";
+import HabitTracker from "../components/HabitTracker";
 import ThinkingAlgorithm from "../components/ThinkingAlgorithm";
 
 export default function Dashboard() {
@@ -20,31 +21,24 @@ export default function Dashboard() {
       return;
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Не удалось получить пользователя");
-        const data = await res.json();
-        setEmail(data.email);
-        setMbtiType(data.mbti_type || null);
+    // Устанавливаем токен в axios
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+    // Получаем данные пользователя
+    axios.get(`${import.meta.env.VITE_API_URL}/users/me`)
+      .then(res => {
+        setEmail(res.data.email);
+        setMbtiType(res.data.mbti_type || null);
       })
       .catch(() => {
         localStorage.removeItem("token");
         navigate("/login");
       });
 
-    fetch(`${import.meta.env.VITE_API_URL}/tests/my-results`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Ошибка загрузки результатов");
-        const data = await res.json();
-        setResults(data);
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    // Получаем результаты тестов
+    axios.get(`${import.meta.env.VITE_API_URL}/tests/my-results`)
+      .then(res => setResults(res.data))
+      .catch(err => console.error(err));
   }, [navigate]);
 
   const tabs = [
@@ -69,7 +63,7 @@ export default function Dashboard() {
 
       {tab === "menu" && (
         <div className="flex flex-wrap justify-center gap-3 border-b pb-4">
-          {tabs.map((t) => (
+          {tabs.map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
@@ -83,10 +77,18 @@ export default function Dashboard() {
 
       {tab === "tests" && (
         <div className="space-y-4">
-          <button onClick={() => navigate("/coretalents")} className="btn-primary">CoreTalents 34</button>
-          <button onClick={() => navigate("/bigfive")} className="btn-primary">Big Five</button>
-          <button onClick={() => navigate("/mbti")} className="btn-primary">MBTI</button>
-          <button onClick={() => setTab("menu")} className="btn-outline">🔙 Назад в меню</button>
+          <button onClick={() => navigate("/coretalents")} className="btn-primary">
+            CoreTalents
+          </button>
+          <button onClick={() => navigate("/bigfive")} className="btn-primary">
+            Big Five
+          </button>
+          <button onClick={() => navigate("/mbti")} className="btn-primary">
+            MBTI
+          </button>
+          <button onClick={() => setTab("menu")} className="btn-outline">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
@@ -106,18 +108,24 @@ export default function Dashboard() {
           <h3 className="font-semibold">📜 История прохождения:</h3>
           {results.map((res, idx) => (
             <div key={idx} className="bg-gray-100 rounded p-4">
-              <p className="text-sm font-medium">🧪 {res.test_name} — {new Date(res.completed_at).toLocaleString()}</p>
+              <p className="text-sm font-medium">
+                🧪 {res.test_name} — {new Date(res.completed_at).toLocaleString()}
+              </p>
               {res.summary && <p className="text-sm text-gray-700 mt-1">{res.summary}</p>}
             </div>
           ))}
-          <button onClick={() => setTab("menu")} className="btn-outline">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       {tab === "hero" && (
         <div className="space-y-4">
           <HeroPath />
-          <button onClick={() => setTab("menu")} className="btn-outline">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
@@ -129,40 +137,52 @@ export default function Dashboard() {
             <li>Сфокусируйся на одном проекте хотя бы на неделю.</li>
             <li>Сделай первые 3 шага — это заложит фундамент.</li>
           </ul>
-          <button onClick={() => setTab("menu")} className="btn-outline">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       {tab === "professions" && (
         <div>
           <HeroProfessions />
-          <button onClick={() => setTab("menu")} className="btn-outline mt-4">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline mt-4">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       {tab === "ranking" && (
         <div>
           <Ranking />
-          <button onClick={() => setTab("menu")} className="btn-outline mt-4">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline mt-4">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       {tab === "habits" && (
         <div>
           <HabitTracker />
-          <button onClick={() => setTab("menu")} className="btn-outline mt-4">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline mt-4">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       {tab === "thinking" && (
         <div>
           <ThinkingAlgorithm />
-          <button onClick={() => setTab("menu")} className="btn-outline mt-4">🔙 Назад в меню</button>
+          <button onClick={() => setTab("menu")} className="btn-outline mt-4">
+            🔙 Назад в меню
+          </button>
         </div>
       )}
 
       <div className="text-center pt-8">
-        <button onClick={() => navigate("/login")} className="bg-red-500 text-white px-4 py-2 rounded">🚪 Выйти</button>
+        <button onClick={() => navigate("/login")} className="bg-red-500 text-white px-4 py-2 rounded">
+          🚪 Выйти
+        </button>
       </div>
     </div>
   );
