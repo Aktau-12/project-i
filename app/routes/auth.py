@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database.db import SessionLocal
 from app.models.user import User
-from app.models.hero import UserHeroProgress
+from app.models.hero import UserHeroProgress  # ✅ Прогресс героя
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pathlib import Path
@@ -65,7 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="⛔ Пользователь не найден")
     return user
 
-# 🔐 Регистрация пользователя
+# 🔐 Регистрация нового пользователя
 @router.post("/register")
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user_data.email).first():
@@ -79,9 +79,9 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         xp=0  # ✅ Вот тут XP остаётся у User
     )
     db.add(new_user)
-    db.flush()  # получить ID
+    db.flush()  # Получаем ID нового пользователя
 
-    # ✅ И ещё создаём прогресс героя
+    # ✅ И ещё создаём прогресс героя с XP = 0
     hero_progress = UserHeroProgress(
         user_id=new_user.id,
         xp=0
