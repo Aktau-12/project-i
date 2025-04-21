@@ -1,5 +1,7 @@
+// src/pages/RegisterPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function RegisterPage() {
   const [name, setName] = useState(""); // 👤 Имя
@@ -21,27 +23,16 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {  // Убедитесь, что URL правильный
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        { name, email, password }
+      );
 
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Ошибка регистрации");
-      }
-
-      const data = await response.json();
-      if (data.access_token) {
-        // Сохраняем токен в localStorage
-        localStorage.setItem("access_token", data.access_token);
-
-        // Перенаправляем на страницу логина
-        navigate("/login");
-      }
+      console.log("✅ Регистрация успешна:", response.data);
+      navigate("/login");
     } catch (err: any) {
-      setError(err.message || "Ошибка сети");
+      console.error("❌ Ошибка регистрации:", err);
+      setError(err.response?.data?.detail || "Ошибка при регистрации");
     }
   };
 
