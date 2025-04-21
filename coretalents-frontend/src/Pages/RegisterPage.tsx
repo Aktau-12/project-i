@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // Add this import statement
+import { useState } from "react";  // Оставить только useState
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
