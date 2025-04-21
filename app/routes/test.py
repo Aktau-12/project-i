@@ -1,17 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database.db import SessionLocal
+from app.models.test import Test, Question, UserAnswer, UserResult
 from app.models.user import User
 from app.routes.auth import get_current_user
-from app.models.test import UserResult, Question
-from app.models.coretalents import CoreQuestion
-from app.models.mbti import MBTIResult, MBTIAnswer
-from app.models.hero import UserHeroProgress
 from pydantic import BaseModel
+from typing import List, Optional
 from datetime import datetime
-import ast
 
-router = APIRouter()
+router = APIRouter(prefix="/tests", tags=["Tests"])
 
 def get_db():
     db = SessionLocal()
@@ -20,237 +17,76 @@ def get_db():
     finally:
         db.close()
 
-def add_xp(user_id: int, db: Session, amount: int = 20):
-    progress = db.query(UserHeroProgress).filter(UserHeroProgress.user_id == user_id).first()
-    if progress:
-        progress.xp = (progress.xp or 0) + amount
-    else:
-        progress = UserHeroProgress(user_id=user.id, xp=amount, step_id="init")
-        db.add(progress)
-    db.commit()
+# 📦 Модель ответа на вопрос
+class Answer(BaseModel):
+    question_id: int
+    answer: int
 
-@router.get("/")
-def get_tests(db: Session = Depends(get_db)):
-    return []
+# 📦 Модель отправки всех ответов на тест
+class SubmitTestRequest(BaseModel):
+    answers: List[Answer]
 
-@router.get("/coretalents")
-def get_coretalents_questions(db: Session = Depends(get_db)):
-    questions = db.query(CoreQuestion).order_by(CoreQuestion.position).all()
+# 📦 Модель ответа вопроса для фронта
+class QuestionResponse(BaseModel):
+    id: int
+    question_a: str
+    question_b: str
+    position: int
+
+# 🔹 Получить вопросы теста
+@router.get("/{test_id}/questions", response_model=List[QuestionResponse])
+def get_test_questions(test_id: int, db: Session = Depends(get_db)):
+    questions = db.query(Question).filter(Question.test_id == test_id).order_by(Question.position).all()
     return [
-        {
-            "id": q.id,
-            "question_a": q.question_a,
-            "question_b": q.question_b,
-            "position": q.position
-        }
+        QuestionResponse(
+            id=q.id,
+            question_a=q.question_a,
+            question_b=q.question_b,
+            position=q.position
+        )
         for q in questions
     ]
 
-@router.get("/coretalents/results")
-def get_coretalents_results(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    result = (
-        db.query(UserResult)
-        .filter(UserResult.user_id == user.id, UserResult.test_id == 1)
-        .order_by(UserResult.id.desc())
-        .first()
-    )
-    if not result:
-        raise HTTPException(status_code=404, detail="Results not found")
-
-    try:
-        parsed_answers = ast.literal_eval(result.answers)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка разбора результатов: {e}")
-
-    return {
-        "test_name": "CoreTalents 34",
-        "result_id": result.id,
-        "score": result.score,
-        "answers": parsed_answers
-    }
-
-@router.get("/my-results")
-def get_my_results(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    results = []
-
-    # CoreTalents
-    core = (
-        db.query(UserResult)
-        .filter(UserResult.user_id == user.id, UserResult.test_id == 1)
-        .order_by(UserResult.timestamp.desc())
-        .first()
-    )
-    if core:
-        parsed = ast.literal_eval(core.answers)
-        top_traits = list(parsed.items())[:5]
-        top_summary = ", ".join([str(k) for k, _ in top_traits])
-        results.append({
-            "test_name": "CoreTalents 34",
-            "result_id": core.id,
-            "answers_count": len(parsed),
-            "score": core.score,
-            "completed_at": core.timestamp.isoformat() if core.timestamp else None,
-            "summary": f"Топ 5 талантов: {top_summary}"
-        })
-
-    # Big Five (с описанием)
-    bigfive = (
-        db.query(UserResult)
-        .filter(UserResult.user_id == user.id, UserResult.test_id == 2)
-        .order_by(UserResult.timestamp.desc())
-        .first()
-    )
-    if bigfive:
-        parsed = ast.literal_eval(bigfive.answers)
-        summary_scores = f"О: {parsed.get('O')}, C: {parsed.get('C')}, E: {parsed.get('E')}, A: {parsed.get('A')}, N: {parsed.get('N')}"
-        description_parts = []
-
-        if parsed.get("O", 0) >= 3:
-            description_parts.append("открыт к новому")
-        else:
-            description_parts.append("предпочитает стабильность")
-
-        if parsed.get("C", 0) >= 3:
-            description_parts.append("организованный и надёжный")
-        else:
-            description_parts.append("гибкий и творческий")
-
-        if parsed.get("E", 0) >= 3:
-            description_parts.append("энергичный и общительный")
-        else:
-            description_parts.append("спокойный и наблюдательный")
-
-        if parsed.get("A", 0) >= 3:
-            description_parts.append("доброжелательный и вежливый")
-        else:
-            description_parts.append("прямой и критичный")
-
-        if parsed.get("N", 0) >= 3:
-            description_parts.append("эмоционально чувствительный")
-        else:
-            description_parts.append("уравновешенный и стрессоустойчивый")
-
-        summary_full = f"{summary_scores}\nТы — {', '.join(description_parts)} человек."
-
-        results.append({
-            "test_name": "Big Five",
-            "result_id": bigfive.id,
-            "answers_count": len(parsed),
-            "score": bigfive.score,
-            "completed_at": bigfive.timestamp.isoformat() if bigfive.timestamp else None,
-            "summary": summary_full
-        })
-
-    # MBTI
-    if user.mbti_type:
-        mbti_count = db.query(MBTIAnswer).filter(MBTIAnswer.user_id == user.id).count()
-        mbti_result = db.query(MBTIResult).filter(MBTIResult.type_code == user.mbti_type).first()
-        summary = f"Тип: {user.mbti_type}"
-        if mbti_result and mbti_result.description:
-            summary += f" — {mbti_result.description}"
-        results.append({
-            "test_name": "MBTI",
-            "result_id": f"MBTI-{user.id}",
-            "answers_count": mbti_count,
-            "score": user.mbti_type,
-            "completed_at": datetime.utcnow().isoformat(),
-            "summary": summary
-        })
-
-    return results
-
-@router.get("/{test_id}/questions")
-def get_test_questions(test_id: int, db: Session = Depends(get_db)):
-    if test_id == 1:
-        questions = db.query(CoreQuestion).order_by(CoreQuestion.position).all()
-        return [
-            {
-                "id": q.id,
-                "question_a": q.question_a,
-                "question_b": q.question_b,
-                "position": q.position
-            }
-            for q in questions
-        ]
-    elif test_id == 2:
-        questions = db.query(Question).filter(Question.test_id == 2).order_by(Question.position).all()
-        return [
-            {
-                "id": q.id,
-                "text": q.text,
-                "position": q.position
-            }
-            for q in questions
-        ]
-    else:
-        raise HTTPException(status_code=404, detail="Вопросы для указанного теста не найдены")
-
-class CoreTalentsSubmission(BaseModel):
-    answers: dict[int, int]
-
-@router.post("/1/submit")
-def submit_coretalents(
-    submission: CoreTalentsSubmission,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    result = UserResult(
-        user_id=user.id,
-        test_id=1,
-        answers=str(submission.answers),
-        score=0
-    )
-    db.add(result)
-    db.commit()
-    add_xp(user.id, db, amount=50)
-    return {"message": "CoreTalents submitted successfully", "result_id": result.id}
-
-class BigFiveSubmission(BaseModel):
-    answers: list[dict]
-    result: dict
-
+# 🔸 Отправить результаты теста
 @router.post("/{test_id}/submit")
 def submit_test_answers(
     test_id: int,
-    submission: BigFiveSubmission,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    request: SubmitTestRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
 ):
-    result = UserResult(
-        user_id=user.id,
-        test_id=test_id,
-        answers=str(submission.result),
-        score=0
-    )
-    db.add(result)
-    db.commit()
-    if test_id == 2:
-        add_xp(user.id, db, amount=30)
-    elif test_id == 3:
-        add_xp(user.id, db, amount=20)
-    return {"message": f"Test {test_id} submitted!", "result_id": result.id}
+    test = db.query(Test).filter(Test.id == test_id).first()
+    if not test:
+        raise HTTPException(status_code=404, detail="Тест не найден")
 
-@router.get("/2/result")
-def get_bigfive_result(
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    for answer in request.answers:
+        db_answer = UserAnswer(
+            user_id=user.id,
+            test_id=test_id,
+            question_id=answer.question_id,
+            answer=answer.answer
+        )
+        db.add(db_answer)
+    
+    db.commit()
+    return {"message": "✅ Ответы сохранены!"}
+
+# 🔹 Получить результаты тестов пользователя
+@router.get("/my-results", response_model=List[dict])
+def get_user_results(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user)
 ):
-    result = (
+    results = (
         db.query(UserResult)
-        .filter(UserResult.user_id == user.id, UserResult.test_id == 2)
-        .order_by(UserResult.id.desc())
-        .first()
+        .filter(UserResult.user_id == user.id)
+        .all()
     )
-    if not result:
-        raise HTTPException(status_code=404, detail="Результат не найден")
-    try:
-        parsed = ast.literal_eval(result.answers)
-        if isinstance(parsed, dict) and all(k in parsed for k in ["O", "C", "E", "A", "N"]):
-            return parsed
-        else:
-            raise HTTPException(status_code=400, detail="Неверный формат результата")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ошибка разбора: {e}")
+    return [
+        {
+            "test_id": r.test_id,
+            "result_data": r.result_data,
+            "created_at": r.created_at
+        }
+        for r in results
+    ]
