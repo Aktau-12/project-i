@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env
-load_dotenv(dotenv_path=Path(__file__).parent / ".env")
+# 🔄 Загружаем переменные окружения из корня проекта
+load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
 # 🕖 Импорт роутеров
 from app.routes import user, auth, test, coretalents, mbti, hero, rating, habit

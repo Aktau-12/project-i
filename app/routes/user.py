@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database.db import SessionLocal
@@ -11,6 +11,7 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # 🔌 Получение сессии БД
+
 def get_db():
     db = SessionLocal()
     try:
@@ -19,14 +20,18 @@ def get_db():
         db.close()
 
 # 🔒 Хеширование пароля
+
 def hash_password(password: str):
     return pwd_context.hash(password)
 
 # ✅ Регистрация нового пользователя с прогрессом героя
-@router.post("/register", response_model=dict)
+@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED)
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user_data.email).first():
-        raise HTTPException(status_code=400, detail="⛔ Этот email уже зарегистрирован")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="⛔ Этот email уже зарегистрирован"
+        )
 
     hashed_password = hash_password(user_data.password)
     user = User(
@@ -53,11 +58,4 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
 # 👤 Получение текущего пользователя
 @router.get("/me", response_model=UserResponse)
 def get_user_me(user: User = Depends(get_current_user)):
-    xp = user.hero_progress.xp if user.hero_progress else 0
-    return {
-        "email": user.email,
-        "name": user.name,
-        "id": user.id,
-        "xp": xp,
-        "mbti_type": user.mbti_type
-    }
+    return user

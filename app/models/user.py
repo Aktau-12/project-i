@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database.db import Base
@@ -11,10 +11,16 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     name = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    # Автоматически ставим текущее время на клиенте и на сервере
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        server_default=func.now(),
+        nullable=False
+    )
     mbti_type = Column(String, nullable=True)
     archetype = Column(String, nullable=True)
-    xp = Column(Integer, default=0)  # ✅ ДОБАВИЛИ
+    xp = Column(Integer, default=0)
 
     # Один-к-одному: XP (связь с UserHeroProgress)
     hero_progress = relationship(UserHeroProgress, back_populates="user", uselist=False)
@@ -25,4 +31,7 @@ class User(Base):
     results = relationship("UserResult", back_populates="user")
 
     def __repr__(self):
-        return f"<User(id={self.id}, email={self.email}, name={self.name}, created_at={self.created_at})>"
+        return (
+            f"<User(id={self.id}, email={self.email}, name={self.name}, "
+            f"created_at={self.created_at})>"
+        )
