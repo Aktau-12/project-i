@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from passlib.context import CryptContext
 from app.database.db import SessionLocal
 from app.models.user import User
@@ -33,11 +34,14 @@ class UserCreate(BaseModel):
     name: str
     password: str
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
+
 def get_password_hash(password):
     return pwd_context.hash(password)
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -45,12 +49,14 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
@@ -69,40 +75,48 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 # 🔐 Регистрация нового пользователя
 @router.post("/register")
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
+    # 1) Проверяем, что email ещё не занят
+    if db.query(User).filter(User.email == user_data.email).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="⛔️ Пользователь с таким email уже зарегистрирован"
+        )
+
+    # 2) Хешируем пароль и готовим объекты
+    hashed_password = get_password_hash(user_data.password)
+    new_user = User(
+        email=user_data.email,
+        password_hash=hashed_password,
+        name=user_data.name,
+        xp=0
+    )
+    db.add(new_user)
+    hero_progress = UserHeroProgress(
+        user_id=new_user.id,
+        xp=0
+    )
+    db.add(hero_progress)
+
+    # 3) Пишем в БД и обрабатываем дубликаты на уровне СУБД
     try:
-        if db.query(User).filter(User.email == user_data.email).first():
-            raise HTTPException(status_code=400, detail="⛔️ Пользователь уже существует")
-
-        hashed_password = get_password_hash(user_data.password)
-        new_user = User(
-            email=user_data.email,
-            password_hash=hashed_password,
-            name=user_data.name,
-            xp=0
-        )
-        db.add(new_user)
-        db.flush()
-
-        hero_progress = UserHeroProgress(
-            user_id=new_user.id,
-            xp=0
-        )
-        db.add(hero_progress)
         db.commit()
-        db.refresh(new_user)
-
-        return {"message": "✅ Пользователь успешно зарегистрирован!"}
-
-    except Exception as e:
+    except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"❌ Ошибка при регистрации: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="⛔️ Пользователь с таким email уже зарегистрирован"
+        )
+
+    # 4) Освежаем и возвращаем ответ
+    db.refresh(new_user)
+    return {"message": "✅ Пользователь успешно зарегистрирован!"}
 
 # 🔐 Логин
 @router.post("/login")
 def login(user_data: UserCreate, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == user_data.email).first()
     if not user or not verify_password(user_data.password, user.password_hash):
-        raise HTTPException(status_code=401, detail="⛔️ Неверный логин или пароль")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="⛔️ Неверный логин или пароль")
 
     token = create_access_token(data={"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
