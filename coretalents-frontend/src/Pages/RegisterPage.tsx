@@ -1,4 +1,4 @@
-import { useState } from "react";  // Оставить только useState
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
@@ -21,7 +21,7 @@ export default function RegisterPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:8000/auth/register", {
+      const response = await fetch("http://localhost:8000/auth/register", {  // Убедитесь, что URL правильный
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
