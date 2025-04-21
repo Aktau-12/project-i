@@ -34,16 +34,20 @@ class UserCreate(BaseModel):
     name: str
     password: str
 
+class UserLogin(BaseModel):
+    email: str
+    password: str
 
-def verify_password(plain_password, hashed_password):
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def get_password_hash(password):
+def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
@@ -58,7 +62,7 @@ def get_db():
         db.close()
 
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         email: str = payload.get("sub")
@@ -113,15 +117,20 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
 
 # 🔐 Логин
 @router.post("/login")
-def login(user_data: UserCreate, db: Session = Depends(get_db)):
+def login(user_data: UserLogin, db: Session = Depends(get_db)):
+    # Проверяем существование и пароль
     user = db.query(User).filter(User.email == user_data.email).first()
     if not user or not verify_password(user_data.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="⛔️ Неверный логин или пароль")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="⛔️ Неверный логин или пароль"
+        )
 
+    # Генерируем токен
     token = create_access_token(data={"sub": user.email})
     return {"access_token": token, "token_type": "bearer"}
 
 # 🔐 Тест защищённого маршрута
 @router.get("/protected")
-def protected_route(user: User = Depends(get_current_user)):
-    return {"message": f"Привет, {user.name}! 🔐 Это защищённый маршрут."}
+def protected_route(current_user: User = Depends(get_current_user)):
+    return {"message": f"Привет, {current_user.name}! 🔐 Это защищённый маршрут."}
