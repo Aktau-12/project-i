@@ -1,28 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database.db import SessionLocal
+from app.database.db import get_db
 from app.models.test import Test, Question, UserResult
 from app.models.user import User
 from app.routes.auth import get_current_user
 from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
+from typing import List
 
-router = APIRouter(prefix="/tests", tags=["Tests"])
+router = APIRouter(tags=["Tests"])
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# 📦 Модель ответа на вопрос
+# 📦 Модель ответа на один вопрос
 class Answer(BaseModel):
     question_id: int
     answer: int
 
-# 📦 Модель отправки всех ответов на тест
+# 📦 Модель отправки всех ответов
 class SubmitTestRequest(BaseModel):
     answers: List[Answer]
 
@@ -37,6 +29,8 @@ class QuestionResponse(BaseModel):
 @router.get("/{test_id}/questions", response_model=List[QuestionResponse])
 def get_test_questions(test_id: int, db: Session = Depends(get_db)):
     questions = db.query(Question).filter(Question.test_id == test_id).order_by(Question.position).all()
+    if not questions:
+        raise HTTPException(status_code=404, detail="Вопросы теста не найдены")
     return [
         QuestionResponse(
             id=q.id,
@@ -59,16 +53,14 @@ def submit_test_answers(
     if not test:
         raise HTTPException(status_code=404, detail="Тест не найден")
 
-    for answer in request.answers:
-        db_answer = UserAnswer(
-            user_id=user.id,
-            test_id=test_id,
-            question_id=answer.question_id,
-            answer=answer.answer
-        )
-        db.add(db_answer)
-    
+    user_result = UserResult(
+        user_id=user.id,
+        test_id=test_id,
+        answers=[{"question_id": a.question_id, "answer": a.answer} for a in request.answers]
+    )
+    db.add(user_result)
     db.commit()
+    db.refresh(user_result)
     return {"message": "✅ Ответы сохранены!"}
 
 # 🔹 Получить результаты тестов пользователя
@@ -77,11 +69,7 @@ def get_user_results(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    results = (
-        db.query(UserResult)
-        .filter(UserResult.user_id == user.id)
-        .all()
-    )
+    results = db.query(UserResult).filter(UserResult.user_id == user.id).all()
     return [
         {
             "test_id": r.test_id,
