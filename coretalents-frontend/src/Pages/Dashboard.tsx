@@ -20,7 +20,7 @@ export default function Dashboard() {
       return;
     }
 
-    fetch("http://localhost:8000/users/me", {
+    fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {
@@ -34,7 +34,7 @@ export default function Dashboard() {
         navigate("/login");
       });
 
-    fetch("http://localhost:8000/tests/my-results", {
+    fetch(`${import.meta.env.VITE_API_URL}/tests/my-results`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(async (res) => {

@@ -25,11 +25,11 @@ export default function Ranking() {
       return;
     }
 
-    fetch("http://localhost:8000/rating/", {
+    fetch(`${import.meta.env.VITE_API_URL}/rating/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // 🔑 Важно!
+        Authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     })

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import axios from "axios";
 
@@ -13,7 +12,7 @@ export default function AIChat() {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:8000/ai/ask", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/ai/ask`, {
         model,
         question,
       });

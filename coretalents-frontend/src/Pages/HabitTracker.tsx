@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -23,7 +22,7 @@ const HabitTracker = () => {
   const fetchHabits = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:8000/habits/my", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/habits/my`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setHabits(res.data);
@@ -36,7 +35,7 @@ const HabitTracker = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        `http://localhost:8000/habits/my/${habitId}/check`,
+        `${import.meta.env.VITE_API_URL}/habits/my/${habitId}/check`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );

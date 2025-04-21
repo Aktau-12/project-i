@@ -18,7 +18,7 @@ export default function RatingPage() {
     const fetchRatings = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:8000/rating", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/rating`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(res.data);

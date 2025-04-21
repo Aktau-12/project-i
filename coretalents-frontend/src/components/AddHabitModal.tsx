@@ -23,7 +23,7 @@ const AddHabitModal = ({ isOpen, onClose, onAdded }: Props) => {
 
   const fetchTemplates = async () => {
     const token = localStorage.getItem("token");
-    const res = await axios.get("http://localhost:8000/habits", {
+    const res = await axios.get(`${import.meta.env.VITE_API_URL}/habits`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setTemplates(res.data);
@@ -47,7 +47,7 @@ const AddHabitModal = ({ isOpen, onClose, onAdded }: Props) => {
     // если пользователь создаёт свою
     if (custom && customTitle.trim() !== "") {
       const res = await axios.post(
-        "http://localhost:8000/habits",
+        `${import.meta.env.VITE_API_URL}/habits`,
         { title: customTitle },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -57,7 +57,7 @@ const AddHabitModal = ({ isOpen, onClose, onAdded }: Props) => {
     if (!habitId || days.length === 0) return;
 
     await axios.post(
-      "http://localhost:8000/habits/my",
+      `${import.meta.env.VITE_API_URL}/habits/my`,
       { habit_id: habitId, days },
       { headers: { Authorization: `Bearer ${token}` } }
     );

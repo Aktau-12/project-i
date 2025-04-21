@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +19,7 @@ export default function BigFiveTest() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/tests/2/questions", {
+      .get(`${import.meta.env.VITE_API_URL}/tests/2/questions`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -89,7 +88,7 @@ export default function BigFiveTest() {
     const computed = calculateBigFive(answers);
     try {
       await axios.post(
-        "http://localhost:8000/tests/2/submit",
+        `${import.meta.env.VITE_API_URL}/tests/2/submit`,
         { answers: payload, result: computed },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );

@@ -17,7 +17,7 @@ const HeroProfessions: React.FC = () => {
     const fetchProfessions = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:8000/hero/professions", {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/hero/professions`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -44,7 +44,9 @@ const HeroProfessions: React.FC = () => {
       <ul className="space-y-4">
         {professions.map((p) => (
           <li key={p.name} className="border-l-4 border-blue-500 pl-3">
-            <div className="text-lg font-semibold">{p.emoji} {p.name}</div>
+            <div className="text-lg font-semibold">
+              {p.emoji} {p.name}
+            </div>
             <div className="text-sm text-gray-500 italic">{p.original_title}</div>
             <p className="text-sm text-gray-700 mt-1">{p.description}</p>
           </li>

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +24,7 @@ const MBTIResults = () => {
     const fetchResult = async () => {
       try {
         const res = await axios.get<MBTIResult>(
-          "http://localhost:8000/mbti/me/result",
+          `${import.meta.env.VITE_API_URL}/mbti/me/result`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

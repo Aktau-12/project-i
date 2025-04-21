@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import axios from "axios";
 import talentsData from "../data/coretalents_results_data.json";
@@ -26,7 +25,7 @@ export default function CoreTalentsResults() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/tests/coretalents/results", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/tests/coretalents/results`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

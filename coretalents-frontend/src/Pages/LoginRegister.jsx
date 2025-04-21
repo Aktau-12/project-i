@@ -14,7 +14,7 @@ export default function LoginRegister() {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:8000/auth/login", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
         username: email,
         password,
       });
@@ -28,7 +28,7 @@ export default function LoginRegister() {
 
   const handleRegister = async () => {
     try {
-      await axios.post("http://localhost:8000/auth/register", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
         email: registerEmail,
         password: registerPassword,
       });

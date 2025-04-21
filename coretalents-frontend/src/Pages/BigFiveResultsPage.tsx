@@ -12,7 +12,7 @@ export default function BigFiveResultsPage() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/tests/2/result", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/tests/2/result`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { getHeroArchetype } from "../utils/getHeroArchetype";
 import stepsData from "../data/hero_steps.json";
@@ -37,7 +36,7 @@ export default function HeroPath() {
     const fetchProgress = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:8000/hero/progress", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/hero/progress`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -66,7 +65,7 @@ export default function HeroPath() {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:8000/hero/progress",
+        `${import.meta.env.VITE_API_URL}/hero/progress`,
         { step_id: stepId, completed: updated },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -143,9 +142,7 @@ export default function HeroPath() {
                   />
                   <span className="text-sm">{step.text}</span>
                 </label>
-                <span className="text-xs text-gray-500">
-                  🎯 {step.points} XP
-                </span>
+                <span className="text-xs text-gray-500">🎯 {step.points} XP</span>
               </li>
             ))}
           </ul>

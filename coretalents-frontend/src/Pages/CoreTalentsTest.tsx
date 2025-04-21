@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -14,7 +13,7 @@ export default function CoreTalentsTest() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/tests/1/questions")
+      .get(`${import.meta.env.VITE_API_URL}/tests/1/questions`)
       .then((res) => setQuestions(res.data))
       .catch((error) => console.error("Ошибка загрузки:", error));
   }, []);
@@ -55,7 +54,7 @@ export default function CoreTalentsTest() {
   const handleSubmit = async () => {
     const payload = { answers };
     try {
-      await axios.post("http://localhost:8000/tests/1/submit", payload, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/tests/1/submit`, payload, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

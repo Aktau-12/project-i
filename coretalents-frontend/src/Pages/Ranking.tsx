@@ -1,8 +1,5 @@
 // Ranking.tsx
-import { useState, useEffect } from "react"; // ← Обязательно добавить хуки
-
-// если archetypes не нужен — убрать его импорт
-
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 type RankedUser = {
@@ -28,11 +25,11 @@ export default function Ranking() {
       return;
     }
 
-    fetch("http://localhost:8000/rating/", {
+    fetch(`${import.meta.env.VITE_API_URL}/rating/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // 🔑 Важно!
+        Authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     })
