@@ -1,94 +1,65 @@
-import { useState } from 'react';
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");  
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
+const RegisterPage = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleRegister = async () => {
-    if (!name || !email || !password || !confirm) { 
-      setError("Пожалуйста, заполните все поля");
-      return;
-    }
-
-    if (password !== confirm) {
-      setError("Пароли не совпадают");
-      return;
-    }
-
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL + "/auth/register", {  // ✅ исправлено
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),  
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        email,
+        name,
+        password,
       });
-
-      if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Ошибка регистрации");
-      }
-
-      navigate("/login");  
-    } catch (err: any) {
-      setError(err.message || "Ошибка сети");
+      console.log("✅ Регистрация успешна:", response.data);
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Ошибка регистрации:", error);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-20 p-6 border rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold mb-4 text-center">📝 Регистрация</h1>
-
-      <input
-        type="text"
-        placeholder="Имя"
-        className="w-full mb-3 p-2 border rounded"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
-
-      <input
-        type="email"
-        placeholder="Почта"
-        className="w-full mb-3 p-2 border rounded"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Пароль"
-        className="w-full mb-3 p-2 border rounded"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      <input
-        type="password"
-        placeholder="Повторите пароль"
-        className="w-full mb-3 p-2 border rounded"
-        value={confirm}
-        onChange={(e) => setConfirm(e.target.value)}
-      />
-
-      {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-
-      <button
-        onClick={handleRegister}
-        className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700"
-      >
-        Зарегистрироваться
-      </button>
-
-      <p className="text-center mt-4 text-sm">
-        Уже есть аккаунт?{" "}
-        <a href="/login" className="text-blue-600 underline">
-          Войти
-        </a>
-      </p>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <form onSubmit={handleRegister} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
+        <h2 className="text-2xl font-bold mb-4 text-center">Регистрация</h2>
+        <input
+          type="text"
+          placeholder="Имя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full mb-4 p-2 border rounded"
+          required
+        />
+        <input
+          type="email"
+          placeholder="Электронная почта"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 p-2 border rounded"
+          required
+        />
+        <input
+          type="password"
+          placeholder="Пароль"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-6 p-2 border rounded"
+          required
+        />
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+        >
+          Зарегистрироваться
+        </button>
+      </form>
     </div>
   );
-}
+};
+
+export default RegisterPage;
