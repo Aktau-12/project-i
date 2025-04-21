@@ -17,11 +17,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS только для нужных фронтендов
+# 🌐 Разрешаем CORS для нужных фронтендов и localhost
 origins = [
     "http://localhost:5173",   # Vite dev
     "http://localhost:3000",   # React dev
-    "https://patient-happiness-production.up.railway.app",  # Продакшн фронтенд
+    "https://patient-happiness-production.up.railway.app",  # Продакшн фронт
 ]
 
 app.add_middleware(
