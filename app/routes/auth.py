@@ -7,47 +7,43 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database.db import SessionLocal
 from app.models.user import User
+from app.models.hero import UserHeroProgress
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from pathlib import Path  # ✅ для надёжного пути
+from pathlib import Path
 import os
 
-# 🔄 Загружаем .env из папки app (на уровень выше текущего файла)
+# 🔄 Загружаем .env
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 # 🔐 JWT конфигурация
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))  # по умолчанию 24ч
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 1440))
 
 if not SECRET_KEY:
     raise RuntimeError("❌ SECRET_KEY не найден в .env")
 
-# ⚙️ Настройки
 router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-# 🧾 Pydantic-модель для запроса
 class UserCreate(BaseModel):
     email: str
     password: str
 
-# 🔍 Проверка и хеширование паролей
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password):
     return pwd_context.hash(password)
 
-# 🔑 Создание JWT-токена
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# 🔗 Получение сессии БД
 def get_db():
     db = SessionLocal()
     try:
@@ -55,7 +51,6 @@ def get_db():
     finally:
         db.close()
 
-# 👤 Получение текущего пользователя из токена
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -70,7 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="⛔ Пользователь не найден")
     return user
 
-# 🔐 Регистрация
+# 🔐 Регистрация пользователя
 @router.post("/register")
 def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == user_data.email).first():
@@ -81,12 +76,21 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         email=user_data.email,
         password_hash=hashed_password,
         name=user_data.email,
-        xp=0  # ✅ начальный опыт
+        xp=0  # ✅ Вот тут XP остаётся у User
     )
     db.add(new_user)
+    db.flush()  # получить ID
+
+    # ✅ И ещё создаём прогресс героя
+    hero_progress = UserHeroProgress(
+        user_id=new_user.id,
+        xp=0
+    )
+    db.add(hero_progress)
     db.commit()
     db.refresh(new_user)
-    return {"message": "✅ Пользователь успешно зарегистрирован"}
+
+    return {"message": "✅ Пользователь успешно зарегистрирован!"}
 
 # 🔐 Логин
 @router.post("/login")

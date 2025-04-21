@@ -35,11 +35,14 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
         password_hash=hashed_password
     )
     db.add(user)
-    db.flush()  # ✅ чтобы user.id был доступен без коммита
+    db.flush()  # чтобы user.id стал доступен
 
-    # ✅ Создаём прогресс героя сразу
-    progress = UserHeroProgress(user_id=user.id, xp=0)
-    db.add(progress)
+    # ✅ Создаём прогресс героя
+    hero_progress = UserHeroProgress(
+        user_id=user.id,
+        xp=0  # изначально 0 опыта
+    )
+    db.add(hero_progress)
     db.commit()
 
     return {
@@ -56,5 +59,5 @@ def get_user_me(user: User = Depends(get_current_user)):
         "name": user.name,
         "id": user.id,
         "xp": xp,
-        "mbti_type": user.mbti_type  # ✅ MBTI тип включён
+        "mbti_type": user.mbti_type
     }
