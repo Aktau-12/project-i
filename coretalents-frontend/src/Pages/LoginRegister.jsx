@@ -10,12 +10,13 @@ export default function LoginRegister() {
   const [password, setPassword] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
+  const [registerName, setRegisterName] = useState(""); // 🔥 Добавили имя!
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        username: email,
+        email,  // тут правильно — email и password
         password,
       });
       localStorage.setItem("token", res.data.access_token);
@@ -31,6 +32,7 @@ export default function LoginRegister() {
       await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
         email: registerEmail,
         password: registerPassword,
+        name: registerName, // ✅ отправляем имя!
       });
       alert("Успешно зарегистрирован! Войдите.");
     } catch (error) {
@@ -67,6 +69,12 @@ export default function LoginRegister() {
         </TabsContent>
 
         <TabsContent value="register">
+          <Input
+            placeholder="Имя" // 🔥 Поле для имени
+            value={registerName}
+            onChange={(e) => setRegisterName(e.target.value)}
+            className="mb-4"
+          />
           <Input
             placeholder="Email"
             value={registerEmail}

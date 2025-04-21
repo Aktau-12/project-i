@@ -1,40 +1,43 @@
-// src/Pages/RegisterPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function RegisterPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");    // ✅ Имя пользователя
+  const [email, setEmail] = useState("");   // Почта
+  const [password, setPassword] = useState(""); // Пароль
+  const [confirmPassword, setConfirmPassword] = useState(""); // Повтор пароля
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
-    if (!email || !password || !confirmPassword) {
-      setError("❗ Пожалуйста, заполните все поля");
+    if (!name || !email || !password || !confirmPassword) {
+      setError("⛔ Пожалуйста, заполните все поля");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("❗ Пароли не совпадают");
+      setError("⛔ Пароли не совпадают");
       return;
     }
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        name,    // ✅ Теперь отправляется и имя
         email,
         password,
       });
-
       console.log("✅ Регистрация успешна:", response.data);
       navigate("/login");
-    } catch (err: any) {
-      console.error("❌ Ошибка регистрации:", err);
-      setError(err.response?.data?.detail || "Ошибка регистрации");
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        setError("⛔ Этот email уже зарегистрирован!");
+      } else {
+        setError("❌ Ошибка регистрации. Попробуйте снова.");
+      }
+      console.error("❌ Ошибка регистрации:", error);
     }
   };
 
@@ -43,6 +46,14 @@ export default function RegisterPage() {
       <form onSubmit={handleRegister} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-4 text-center">Регистрация</h2>
 
+        <input
+          type="text"
+          placeholder="Имя"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full mb-4 p-2 border rounded"
+          required
+        />
         <input
           type="email"
           placeholder="Электронная почта"
@@ -68,7 +79,7 @@ export default function RegisterPage() {
           required
         />
 
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <button
           type="submit"
