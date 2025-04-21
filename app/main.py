@@ -4,10 +4,10 @@ from dotenv import load_dotenv
 from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env (папка app/)
+# 🔄 Загружаем переменные окружения из .env ( в папке app/)
 load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
-# 🗖 Импорт роутеров
+# 🕖 Импорт роутеров
 from app.routes import user, auth, test, coretalents, mbti, hero, rating, habit
 
 # 🚀 Создаём FastAPI-приложение
@@ -17,12 +17,11 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS для всех нужных доменов
+# 🌐 Разрешаем CORS только для нужных фронтендов
 origins = [
     "http://localhost:5173",   # для Vite
     "http://localhost:3000",   # для обычного React
-    "https://patient-happiness-production.up.railway.app",  # твой продакшн фронт Railway
-    "https://lively-enjoyment-production-6af3.up.railway.app",  # добавил твой текущий фронт
+    "https://patient-happiness-production.up.railway.app",  # Твой продакшн фронт
 ]
 
 app.add_middleware(
@@ -49,7 +48,7 @@ app.include_router(habit.router, prefix="/habits", tags=["Habits"])
 def home():
     return {"message": "✅ AI Profiler успешно работает!"}
 
-# 🚀 Специальный маршрут для выполнения миграций
+# 🚀 Специальный маршрут для миграций
 @app.get("/run-migrations")
 async def run_migrations_from_api():
     from app.run_migrations import run_migrations

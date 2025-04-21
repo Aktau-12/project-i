@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");    // ✅ Имя пользователя
-  const [email, setEmail] = useState("");   // Почта
-  const [password, setPassword] = useState(""); // Пароль
-  const [confirmPassword, setConfirmPassword] = useState(""); // Повтор пароля
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -14,28 +14,34 @@ export default function RegisterPage() {
     e.preventDefault();
 
     if (!name || !email || !password || !confirmPassword) {
-      setError("⛔ Пожалуйста, заполните все поля");
+      setError("⛔ Пожалуйста, заполните все поля.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("⛔ Пароли не совпадают");
+      setError("⛔ Пароли не совпадают.");
       return;
     }
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
-        name,    // ✅ Теперь отправляется и имя
+        name,
         email,
         password,
       });
       console.log("✅ Регистрация успешна:", response.data);
       navigate("/login");
     } catch (error: any) {
-      if (error.response && error.response.status === 400) {
-        setError("⛔ Этот email уже зарегистрирован!");
+      if (error.response) {
+        if (error.response.status === 400) {
+          setError("⛔ Этот email уже зарегистрирован!");
+        } else if (error.response.status === 500) {
+          setError("❌ Ошибка сервера. Попробуйте позже.");
+        } else {
+          setError("❌ Произошла ошибка. Попробуйте снова.");
+        }
       } else {
-        setError("❌ Ошибка регистрации. Попробуйте снова.");
+        setError("❌ Сетевая ошибка. Проверьте подключение к интернету.");
       }
       console.error("❌ Ошибка регистрации:", error);
     }
@@ -45,6 +51,8 @@ export default function RegisterPage() {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleRegister} className="bg-white p-6 rounded shadow-md w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-4 text-center">Регистрация</h2>
+
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <input
           type="text"
@@ -78,8 +86,6 @@ export default function RegisterPage() {
           className="w-full mb-6 p-2 border rounded"
           required
         />
-
-        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         <button
           type="submit"

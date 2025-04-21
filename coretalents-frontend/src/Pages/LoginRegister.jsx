@@ -10,19 +10,24 @@ export default function LoginRegister() {
   const [password, setPassword] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
-  const [registerName, setRegisterName] = useState(""); // 🔥 Добавили имя!
+  const [registerName, setRegisterName] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,  // тут правильно — email и password
+        email,
         password,
       });
       localStorage.setItem("token", res.data.access_token);
-      navigate("/test");
-    } catch (error) {
-      alert("Ошибка входа");
+      navigate("/dashboard");
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        setError("⛔ Неверный логин или пароль.");
+      } else {
+        setError("❌ Ошибка входа. Попробуйте снова.");
+      }
       console.error(error);
     }
   };
@@ -32,17 +37,22 @@ export default function LoginRegister() {
       await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
         email: registerEmail,
         password: registerPassword,
-        name: registerName, // ✅ отправляем имя!
+        name: registerName,
       });
-      alert("Успешно зарегистрирован! Войдите.");
-    } catch (error) {
-      alert("Ошибка регистрации");
+      alert("✅ Успешно зарегистрирован! Войдите.");
+    } catch (error: any) {
+      if (error.response && error.response.status === 400) {
+        setError("⛔ Пользователь с таким email уже существует.");
+      } else {
+        setError("❌ Ошибка регистрации. Попробуйте снова.");
+      }
       console.error(error);
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 border rounded-2xl shadow-xl">
+      {error && <div className="text-red-500 text-center mb-4">{error}</div>}
       <Tabs defaultValue="login">
         <TabsList className="w-full grid grid-cols-2 mb-6">
           <TabsTrigger value="login">Вход</TabsTrigger>
@@ -70,7 +80,7 @@ export default function LoginRegister() {
 
         <TabsContent value="register">
           <Input
-            placeholder="Имя" // 🔥 Поле для имени
+            placeholder="Имя"
             value={registerName}
             onChange={(e) => setRegisterName(e.target.value)}
             className="mb-4"
