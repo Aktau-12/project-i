@@ -54,7 +54,7 @@ def create_habit(habit: HabitCreate, db: Session = Depends(get_db)):
     return {"id": new.id, "message": "🆕 Привычка добавлена"}
 
 # 🔸 Добавить привычку пользователю
-@router.post("/my-habits", status_code=201)
+@router.post("/habits/my", status_code=201)
 def add_user_habit(
     habit_data: UserHabitCreate,
     db: Session = Depends(get_db),
@@ -75,7 +75,7 @@ def add_user_habit(
     return {"message": "✅ Привычка добавлена пользователю"}
 
 # 🔹 Получить привычки пользователя
-@router.get("/my-habits", response_model=List[dict])
+@router.get("/habits/my", response_model=List[dict])
 def get_user_habits(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
@@ -99,7 +99,7 @@ def get_user_habits(
     ]
 
 # 🔘 Отметить привычку как выполненную сегодня
-@router.post("/my-habits/{habit_id}/check")
+@router.post("/habits/my/{habit_id}/check")
 def check_habit_done(
     habit_id: int,
     db: Session = Depends(get_db),
