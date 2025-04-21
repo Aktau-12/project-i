@@ -4,7 +4,7 @@ import axios from "axios";
 import HeroPath from "../components/HeroPath";
 import Ranking from "../components/Ranking";
 import HeroProfessions from "../components/HeroProfessions";
-import HabitTracker from "../components/HabitTracker";
+import HabitTracker from "./HabitTracker";
 import ThinkingAlgorithm from "../components/ThinkingAlgorithm";
 
 export default function Dashboard() {
@@ -21,12 +21,13 @@ export default function Dashboard() {
       return;
     }
 
-    // Устанавливаем токен в axios
+    // Устанавливаем токен для axios
     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
     // Получаем данные пользователя
-    axios.get(`${import.meta.env.VITE_API_URL}/users/me`)
-      .then(res => {
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/users/me`)
+      .then((res) => {
         setEmail(res.data.email);
         setMbtiType(res.data.mbti_type || null);
       })
@@ -36,9 +37,10 @@ export default function Dashboard() {
       });
 
     // Получаем результаты тестов
-    axios.get(`${import.meta.env.VITE_API_URL}/tests/my-results`)
-      .then(res => setResults(res.data))
-      .catch(err => console.error(err));
+    axios
+      .get(`${import.meta.env.VITE_API_URL}/tests/my-results`)
+      .then((res) => setResults(res.data))
+      .catch((err) => console.error(err));
   }, [navigate]);
 
   const tabs = [
@@ -63,7 +65,7 @@ export default function Dashboard() {
 
       {tab === "menu" && (
         <div className="flex flex-wrap justify-center gap-3 border-b pb-4">
-          {tabs.map(t => (
+          {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
@@ -104,7 +106,6 @@ export default function Dashboard() {
               <p className="text-blue-700 font-semibold">🧬 Ваш MBTI тип: {mbtiType}</p>
             </div>
           )}
-
           <h3 className="font-semibold">📜 История прохождения:</h3>
           {results.map((res, idx) => (
             <div key={idx} className="bg-gray-100 rounded p-4">
