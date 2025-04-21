@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint ."  // Добавил линтинг скрипт сюда
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.0.16",
