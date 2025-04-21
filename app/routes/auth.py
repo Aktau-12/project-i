@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from app.database.db import SessionLocal
 from app.models.user import User
-from app.models.hero import UserHeroProgress  # ✅ Прогресс героя
+from app.models.hero import UserHeroProgress
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from pathlib import Path
@@ -28,8 +28,10 @@ router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
+# ✅ Исправлено! Теперь принимает и name
 class UserCreate(BaseModel):
     email: str
+    name: str
     password: str
 
 def verify_password(plain_password, hashed_password):
@@ -75,13 +77,13 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     new_user = User(
         email=user_data.email,
         password_hash=hashed_password,
-        name=user_data.email,
-        xp=0  # ✅ Вот тут XP остаётся у User
+        name=user_data.name,  # ✅ Теперь используем введённое имя
+        xp=0
     )
     db.add(new_user)
     db.flush()  # Получаем ID нового пользователя
 
-    # ✅ И ещё создаём прогресс героя с XP = 0
+    # ✅ Создаём прогресс героя
     hero_progress = UserHeroProgress(
         user_id=new_user.id,
         xp=0
