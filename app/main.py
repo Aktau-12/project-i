@@ -17,17 +17,19 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS
-origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://patient-happiness-production.up.railway.app",  # Фронтенд
-    "https://lively-enjoyment-production.up.railway.app",    # Бэкенд (dlya preflight request)
-]
+# 🌐 Настройки CORS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+if allowed_origins == [""]:  # если нет переменной окружения
+    allowed_origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "https://patient-happiness-production.up.railway.app",
+        "https://lively-enjoyment-production.up.railway.app",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
