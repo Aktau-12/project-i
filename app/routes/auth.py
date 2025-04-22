@@ -48,7 +48,7 @@ class TokenData(BaseModel):
     email: Optional[str] = None
 
 class UserCreate(BaseModel):
-    username: str
+    name: str  # 🛠 изменили тут
     email: str
     password: str
 
@@ -85,7 +85,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
 
     hashed_password = get_password_hash(user.password)
     new_user = User(
-        username=user.username,
+        name=user.name,  # 🛠 исправили здесь
         email=user.email,
         password_hash=hashed_password
     )

@@ -46,7 +46,7 @@ export default function LoginRegister() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/register`,
-        { username: registerName, email: registerEmail, password: registerPassword } // 🛠 исправлено здесь
+        { name: registerName, email: registerEmail, password: registerPassword } // 🛠 исправлено здесь
       );
       const { access_token, token_type } = res.data;
       localStorage.setItem("token", access_token);

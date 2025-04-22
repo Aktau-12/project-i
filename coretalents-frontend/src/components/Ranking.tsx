@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 type RankedUser = {
   user_id: number;
-  username: string;
+  name: string;
   xp: number;
 };
 
@@ -73,7 +73,7 @@ export default function Ranking() {
                 }`}
               >
                 <span>
-                  #{index + 1} — <strong>{user.username}</strong>
+                  #{index + 1} — <strong>{user.name}</strong>
                 </span>
                 <span>🎯 {user.xp} XP</span>
               </li>
