@@ -14,7 +14,6 @@ export default function LoginRegister() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // При монтировании ставим токен, если он есть
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -47,7 +46,7 @@ export default function LoginRegister() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/register`,
-        { email: registerEmail, name: registerName, password: registerPassword }
+        { username: registerName, email: registerEmail, password: registerPassword } // 🛠 исправлено здесь
       );
       const { access_token, token_type } = res.data;
       localStorage.setItem("token", access_token);

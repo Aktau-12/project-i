@@ -10,7 +10,6 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Если уже есть токен — сразу на дашборд
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -35,7 +34,7 @@ export default function RegisterPage() {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/auth/register`,
-        { name, email, password }
+        { username: name, email, password }  // 🛠 исправлено здесь
       );
       const { access_token, token_type } = res.data;
       localStorage.setItem("token", access_token);
