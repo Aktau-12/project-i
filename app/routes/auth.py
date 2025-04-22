@@ -12,7 +12,7 @@ from app.models.user import User
 from app.models.hero import UserHeroProgress
 
 # Настройки для JWT
-SECRET_KEY = "your_secret_key_here"
+SECRET_KEY = "your_secret_key_here"  # ❗ Здесь нужно будет подгружать из .env через os.getenv
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
@@ -76,7 +76,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 # 📥 Регистрация нового пользователя
-@router.post("/auth/register", response_model=Token)
+@router.post("/register", response_model=Token)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
@@ -92,20 +92,26 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    # Создаём путь героя
+    # Создание прогресса героя при регистрации
     new_hero = UserHeroProgress(user_id=new_user.id)
     db.add(new_hero)
     db.commit()
 
-    access_token = create_access_token(data={"sub": new_user.email}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(
+        data={"sub": new_user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
-# 🔐 Логин
-@router.post("/auth/login", response_model=Token)
+# 🔐 Логин пользователя
+@router.post("/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Неверный email или пароль")
 
-    access_token = create_access_token(data={"sub": db_user.email}, expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    access_token = create_access_token(
+        data={"sub": db_user.email},
+        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
     return {"access_token": access_token, "token_type": "bearer"}

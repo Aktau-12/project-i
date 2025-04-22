@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 import os
+
+# 📦 Загружаем переменные окружения заранее
+load_dotenv()
 
 # 🕒 Импорт роутеров
 from app.routes import (
@@ -17,36 +21,31 @@ from app.routes import (
 # 🚀 Создаём FastAPI-приложение
 app = FastAPI(
     title="AI Profiler",
-    description="🦱 Платформа для психологических тестов, саморазвития и AI-помощи",
+    description="🦱 Платформа для психологических тестов, саморазвития и AI‑помощи",
     version="1.0.0",
 )
 
 # 🌐 Настройки CORS
 
-# Попробуем взять из .env, если задано
-allowed_origins = [
-    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()
-]
+# Получаем список разрешённых источников из .env или по умолчанию
+raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
 
-# Если переменная ALLOWED_ORIGINS не задана или пустая — ставим стандартные
+# Если ALLOWED_ORIGINS не задан, определяем автоматически по окружению
 if not allowed_origins:
-    # Определяем среду — локалка или продакшен
     environment = os.getenv("ENVIRONMENT", "development").lower()
-
     if environment == "production":
-        # Продакшен-режим
         allowed_origins = [
             "https://patient-happiness-production.up.railway.app",
             "https://lively-enjoyment-production.up.railway.app",
         ]
     else:
-        # Локальная разработка
         allowed_origins = [
             "http://localhost:5173",
             "http://localhost:3000",
         ]
 
-# ➡️ Подключаем CORS middleware
+# ➡️ Применяем CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
@@ -70,7 +69,7 @@ app.include_router(habit.router, prefix="/habits", tags=["Habits"])
 def read_root() -> dict[str, str]:
     return {"message": "✅ AI Profiler успешно работает!"}
 
-# 🚀 Роут для запуска миграций
+# 🚀 Эндпоинт для запуска миграций вручную
 @app.get("/run-migrations", tags=["Migrations"])
 async def run_migrations_from_api() -> dict[str, str]:
     from app.run_migrations import run_migrations
