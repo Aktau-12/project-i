@@ -69,12 +69,17 @@ def get_user_results(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user)
 ):
-    results = db.query(UserResult).filter(UserResult.user_id == user.id).all()
+    results = (
+        db.query(UserResult, Test)
+        .join(Test, UserResult.test_id == Test.id)
+        .filter(UserResult.user_id == user.id)
+        .all()
+    )
     return [
         {
-            "test_id": r.test_id,
-            "result_data": r.result_data,
-            "created_at": r.created_at
+            "test_name": test.name,
+            "completed_at": result.timestamp,
+            "summary": None  # Можешь здесь добавить summary позже
         }
-        for r in results
+        for result, test in results
     ]

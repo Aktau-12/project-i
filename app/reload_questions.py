@@ -21,7 +21,7 @@ db.query(Question).filter(Question.test_id == 1).delete()
 db.commit()
 print("✅ Старые вопросы удалены.")
 
-# 📥 Загружаем JSON-файл
+# 📅 Загружаем JSON-файл
 try:
     with open(file_path, "r", encoding="utf-8") as f:
         questions = json.load(f)
@@ -30,11 +30,10 @@ except Exception as e:
 
 # ➕ Добавляем новые вопросы
 added_count = 0
-for i, q in enumerate(questions, start=1):
+for q in questions:
     if "question_a" in q and "question_b" in q:
         question_text = q["question_a"] + " / " + q["question_b"]
         question = Question(
-            id=i,               # 👈 вручную присваиваем ID (если автоинкремент не используется)
             test_id=1,
             text=question_text
         )

@@ -1,9 +1,9 @@
-
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
+  base: "/",  // 👉 Добавляем base для корректных путей на продакшене
   plugins: [react()],
   resolve: {
     alias: {

@@ -51,7 +51,7 @@ def create_habit(habit: HabitCreate, db: Session = Depends(get_db)):
     db.add(new)
     db.commit()
     db.refresh(new)
-    return {"id": new.id, "message": "🆕 Привычка добавлена"}
+    return {"id": new.id, "message": "🌟 Привычка добавлена"}
 
 # 🔸 Добавить привычку пользователю
 @router.post("/habits/my", status_code=201)
@@ -93,7 +93,8 @@ def get_user_habits(
             "image_url": h.image_url,
             "days": uh.days,
             "done_today": uh.done_today,
-            "streak": uh.streak
+            "streak": uh.streak,
+            "week_log": uh.week_log
         }
         for uh, h in habits
     ]
@@ -115,4 +116,4 @@ def check_habit_done(
     user_habit.done_today = True
     user_habit.streak += 1
     db.commit()
-    return {"message": "🎯 Привычка отмечена как выполненная сегодня!"}
+    return {"message": "🌟 Привычка отмечена как выполненная!"}
