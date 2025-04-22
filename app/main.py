@@ -22,15 +22,31 @@ app = FastAPI(
 )
 
 # 🌐 Настройки CORS
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
-if not allowed_origins or allowed_origins == [""]:
-    allowed_origins = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "https://patient-happiness-production.up.railway.app",
-        "https://lively-enjoyment-production.up.railway.app",
-    ]
 
+# Попробуем взять из .env, если задано
+allowed_origins = [
+    origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "").split(",") if origin.strip()
+]
+
+# Если переменная ALLOWED_ORIGINS не задана или пустая — ставим стандартные
+if not allowed_origins:
+    # Определяем среду — локалка или продакшен
+    environment = os.getenv("ENVIRONMENT", "development").lower()
+
+    if environment == "production":
+        # Продакшен-режим
+        allowed_origins = [
+            "https://patient-happiness-production.up.railway.app",
+            "https://lively-enjoyment-production.up.railway.app",
+        ]
+    else:
+        # Локальная разработка
+        allowed_origins = [
+            "http://localhost:5173",
+            "http://localhost:3000",
+        ]
+
+# ➡️ Подключаем CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
