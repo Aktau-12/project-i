@@ -1,14 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-from pathlib import Path
 import os
 
-# 🔄 Загружаем переменные окружения из .env
-load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
-
 # 🕒 Импорт роутеров
-from app.routes import user, auth, test, coretalents, mbti, hero, rating, habit
+from app.routes import (
+    user,
+    auth,
+    test,
+    coretalents,
+    mbti,
+    hero,
+    rating,
+    habit,
+)
 
 # 🚀 Создаём FastAPI-приложение
 app = FastAPI(
@@ -19,7 +23,7 @@ app = FastAPI(
 
 # 🌐 Настройки CORS
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
-if allowed_origins == [""]:  # если нет переменной окружения
+if not allowed_origins or allowed_origins == [""]:
     allowed_origins = [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -46,13 +50,13 @@ app.include_router(rating.router, prefix="/rating", tags=["Rating"])
 app.include_router(habit.router, prefix="/habits", tags=["Habits"])
 
 # 🏠 Главная страница
-@app.get("/")
-def home():
+@app.get("/", tags=["Root"])
+def read_root() -> dict[str, str]:
     return {"message": "✅ AI Profiler успешно работает!"}
 
 # 🚀 Роут для запуска миграций
-@app.get("/run-migrations")
-async def run_migrations_from_api():
+@app.get("/run-migrations", tags=["Migrations"])
+async def run_migrations_from_api() -> dict[str, str]:
     from app.run_migrations import run_migrations
     await run_migrations()
     return {"message": "✅ Миграции применены успешно!"}
