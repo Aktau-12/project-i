@@ -17,7 +17,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# 🌐 Разрешаем CORS для нужных фронтендов и localhost
+# 🌐 Разрешаем CORS для фронтендов и localhost
 origins = [
     "http://localhost:5173",   # Vite dev
     "http://localhost:3000",   # React dev
