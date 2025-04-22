@@ -6,15 +6,16 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from pydantic import BaseModel
 from typing import Optional
+import os
 
 from app.database.db import get_db
 from app.models.user import User
 from app.models.hero import UserHeroProgress
 
 # Настройки для JWT
-SECRET_KEY = "your_secret_key_here"  # ❗ Здесь нужно будет подгружать из .env через os.getenv
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
+SECRET_KEY = os.getenv("SECRET_KEY", "your_secret_key_here")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 60 * 24 * 7))
 
 # Раутер
 router = APIRouter(tags=["Auth"])
@@ -78,9 +79,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 # 📥 Регистрация нового пользователя
 @router.post("/register", response_model=Token)
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email уже зарегистрирован")
+    existing_user = db.query(User).filter(User.email == user.email).first()
+    if existing_user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email уже зарегистрирован")
 
     hashed_password = get_password_hash(user.password)
     new_user = User(
@@ -92,9 +93,9 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
-    # Создание прогресса героя при регистрации
-    new_hero = UserHeroProgress(user_id=new_user.id)
-    db.add(new_hero)
+    # Автоматическое создание прогресса героя
+    hero_progress = UserHeroProgress(user_id=new_user.id)
+    db.add(hero_progress)
     db.commit()
 
     access_token = create_access_token(

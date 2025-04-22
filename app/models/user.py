@@ -9,25 +9,37 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
-    name = Column(String, nullable=True)
+    email = Column(String(255), unique=True, index=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
+    name = Column(String(255), nullable=True)
     created_at = Column(
-        DateTime,
-        default=datetime.utcnow,
+        DateTime(timezone=True),
         server_default=func.now(),
         nullable=False
     )
-    mbti_type = Column(String, nullable=True)
-    archetype = Column(String, nullable=True)
+    mbti_type = Column(String(32), nullable=True)
+    archetype = Column(String(64), nullable=True)
     xp = Column(Integer, default=0)
 
-    # Связи
-    hero_progress = relationship(UserHeroProgress, back_populates="user", uselist=False)  # Один-к-одному: прогресс героя
-    hero_step_progress = relationship(UserHeroStep, back_populates="user")  # Один-ко-многим: шаги героя
-    results = relationship("UserResult", back_populates="user")  # Один-ко-многим: результаты тестов
+    # 🔗 Связи
+    hero_progress = relationship(
+        "UserHeroProgress",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+    hero_step_progress = relationship(
+        "UserHeroStep",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+    results = relationship(
+        "UserResult",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<User(id={self.id}, email={self.email}, name={self.name}, "
             f"created_at={self.created_at})>"
