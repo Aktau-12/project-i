@@ -6,12 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default function LoginRegister() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [registerEmail, setRegisterEmail] = useState("");
-  const [registerPassword, setRegisterPassword] = useState("");
-  const [registerName, setRegisterName] = useState("");
-  const [error, setError] = useState("");
+  const [loginData, setLoginData] = useState({ email: "", password: "" });
+  const [registerData, setRegisterData] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +19,20 @@ export default function LoginRegister() {
     }
   }, [navigate]);
 
+  const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setRegisterData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleLogin = async () => {
+    setError("");
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/login`,
-        { email, password }
-      );
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, loginData);
       const { access_token, token_type } = res.data;
       localStorage.setItem("token", access_token);
       axios.defaults.headers.common["Authorization"] = `${token_type} ${access_token}`;
@@ -38,16 +43,14 @@ export default function LoginRegister() {
       } else {
         setError("❌ Ошибка входа. Попробуйте снова.");
       }
-      console.error(err);
+      console.error("❌ Ошибка входа:", err);
     }
   };
 
   const handleRegister = async () => {
+    setError("");
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        { name: registerName, email: registerEmail, password: registerPassword } // 🛠 исправлено здесь
-      );
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, registerData);
       const { access_token, token_type } = res.data;
       localStorage.setItem("token", access_token);
       axios.defaults.headers.common["Authorization"] = `${token_type} ${access_token}`;
@@ -55,16 +58,19 @@ export default function LoginRegister() {
     } catch (err: any) {
       if (err.response?.status === 400) {
         setError("⛔ Пользователь с таким email уже существует.");
+      } else if (err.response?.status === 500) {
+        setError("❌ Ошибка сервера. Попробуйте позже.");
       } else {
         setError("❌ Ошибка регистрации. Попробуйте снова.");
       }
-      console.error(err);
+      console.error("❌ Ошибка регистрации:", err);
     }
   };
 
   return (
     <div className="max-w-md mx-auto mt-20 p-6 border rounded-2xl shadow-xl">
       {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+
       <Tabs defaultValue="login">
         <TabsList className="w-full grid grid-cols-2 mb-6">
           <TabsTrigger value="login">Вход</TabsTrigger>
@@ -73,16 +79,18 @@ export default function LoginRegister() {
 
         <TabsContent value="login">
           <Input
+            name="email"
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={loginData.email}
+            onChange={handleLoginChange}
             className="mb-4"
           />
           <Input
+            name="password"
             type="password"
             placeholder="Пароль"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={loginData.password}
+            onChange={handleLoginChange}
             className="mb-4"
           />
           <Button onClick={handleLogin} className="w-full">
@@ -92,22 +100,25 @@ export default function LoginRegister() {
 
         <TabsContent value="register">
           <Input
+            name="name"
             placeholder="Имя"
-            value={registerName}
-            onChange={(e) => setRegisterName(e.target.value)}
+            value={registerData.name}
+            onChange={handleRegisterChange}
             className="mb-4"
           />
           <Input
+            name="email"
             placeholder="Email"
-            value={registerEmail}
-            onChange={(e) => setRegisterEmail(e.target.value)}
+            value={registerData.email}
+            onChange={handleRegisterChange}
             className="mb-4"
           />
           <Input
+            name="password"
             type="password"
             placeholder="Пароль"
-            value={registerPassword}
-            onChange={(e) => setRegisterPassword(e.target.value)}
+            value={registerData.password}
+            onChange={handleRegisterChange}
             className="mb-4"
           />
           <Button onClick={handleRegister} className="w-full">

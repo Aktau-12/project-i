@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,35 +20,49 @@ export default function RegisterPage() {
     }
   }, [navigate]);
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const { name, email, password, confirmPassword } = formData;
 
     if (!name || !email || !password || !confirmPassword) {
       setError("⛔ Пожалуйста, заполните все поля.");
       return;
     }
+
     if (password !== confirmPassword) {
       setError("⛔ Пароли не совпадают.");
       return;
     }
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/auth/register`,
-        { name, email, password } // 🛠 исправлено здесь
-      );
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+        name,
+        email,
+        password,
+      });
       const { access_token, token_type } = res.data;
+
       localStorage.setItem("token", access_token);
       axios.defaults.headers.common["Authorization"] = `${token_type} ${access_token}`;
       navigate("/dashboard");
     } catch (err: any) {
-      if (err.response?.status === 400) {
-        setError("⛔ Этот email уже зарегистрирован!");
-      } else if (err.response?.status === 500) {
-        setError("❌ Ошибка сервера. Попробуйте позже.");
+      if (err.response) {
+        if (err.response.status === 400) {
+          setError("⛔ Этот email уже зарегистрирован!");
+        } else if (err.response.status === 500) {
+          setError("❌ Ошибка сервера. Попробуйте позже.");
+        } else {
+          setError("❌ Произошла ошибка. Попробуйте снова.");
+        }
       } else {
-        setError("❌ Произошла ошибка. Попробуйте снова.");
+        setError("❌ Нет связи с сервером.");
       }
       console.error("❌ Ошибка регистрации:", err);
     }
@@ -60,30 +76,34 @@ export default function RegisterPage() {
 
         <input
           type="text"
+          name="name"
           placeholder="Имя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={formData.name}
+          onChange={handleChange}
           className="w-full mb-4 p-2 border rounded"
         />
         <input
           type="email"
+          name="email"
           placeholder="Электронная почта"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={formData.email}
+          onChange={handleChange}
           className="w-full mb-4 p-2 border rounded"
         />
         <input
           type="password"
+          name="password"
           placeholder="Пароль"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={formData.password}
+          onChange={handleChange}
           className="w-full mb-4 p-2 border rounded"
         />
         <input
           type="password"
+          name="confirmPassword"
           placeholder="Повторите пароль"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={formData.confirmPassword}
+          onChange={handleChange}
           className="w-full mb-6 p-2 border rounded"
         />
 
