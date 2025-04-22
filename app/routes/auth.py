@@ -8,7 +8,7 @@ from typing import Optional
 
 from app.database.db import get_db
 from app.models.user import User
-from app.models.hero import Hero
+from app.models.hero import UserHeroProgress
 
 SECRET_KEY = "your_secret_key_here"
 ALGORITHM = "HS256"
